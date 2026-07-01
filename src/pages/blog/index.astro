@@ -20,10 +20,6 @@ const topTags = Object.entries(tagCounts)
   .slice(0, 12);
 
 const tagKey = (tag: string) => tag.trim().toLowerCase();
-
-const aiCount = articles.filter((article) =>
-  article.data.tags.some((tag) => ['AI', 'Agent', 'MCP', 'RAG', 'Spring AI'].includes(tag))
-).length;
 ---
 
 <BaseLayout title="文章" description="围绕 Java 后端、广告投放、批量工作流、BI 分析和 AI Agent 工程化的实践文章。">
@@ -55,8 +51,8 @@ const aiCount = articles.filter((article) =>
 
         <div class="blog-main">
           <div class="list-head">
-            <span>{articles.length} articles / {Object.keys(tagCounts).length} topics / {aiCount} AI notes</span>
-            <span data-visible-count>{articles.length} shown</span>
+            <span>共 {articles.length} 篇文章</span>
+            <span data-visible-count>当前显示 {articles.length} 篇</span>
           </div>
           <ArticleList articles={articles} />
           <p class="empty-state" data-empty-state hidden>这个标签下暂时没有文章，换个方向看看。</p>
@@ -85,7 +81,7 @@ const aiCount = articles.filter((article) =>
       if (show) count++;
     });
 
-    if (visibleCount instanceof HTMLElement) visibleCount.textContent = `${count} shown`;
+    if (visibleCount instanceof HTMLElement) visibleCount.textContent = `当前显示 ${count} 篇`;
     if (emptyState instanceof HTMLElement) emptyState.hidden = count > 0;
   }
 
