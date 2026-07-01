@@ -127,7 +127,9 @@ const glossaryTerms = [
     return true;
   }
 
-  if (prose) {
+  function decorateGlossary() {
+    if (!prose) return;
+
     for (const [term, description] of glossaryTerms) {
       if (usedTerms.has(term)) continue;
       const walker = document.createTreeWalker(prose, NodeFilter.SHOW_TEXT, {
@@ -141,6 +143,12 @@ const glossaryTerms = [
       const match = walker.nextNode();
       if (match && decorateTerm(match, term, description)) usedTerms.add(term);
     }
+  }
+
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(decorateGlossary, { timeout: 1200 });
+  } else {
+    window.setTimeout(decorateGlossary, 160);
   }
 </script>
 
