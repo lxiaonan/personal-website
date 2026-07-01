@@ -1,6 +1,10 @@
 # Java Backend Personal Site
 
-一个面向 Java 后端开发者的个人网站第一版：主页、文章、项目、关于、RSS、搜索数据和 Cloudflare Pages 部署友好的静态输出。
+一个面向 Java 后端开发者的个人网站：主页、文章、项目、关于、RSS 和搜索数据。
+
+线上地址：
+
+https://lxiaonan.github.io/personal-website/
 
 ## 本地运行
 
@@ -15,10 +19,8 @@ npm run dev
 npm run build
 ```
 
-Cloudflare Pages 推荐配置：
+## GitHub Pages
 
-- Build command: `npm run build`
-- Build output directory: `dist`
-- Node.js version: 22
+仓库已包含 `.github/workflows/deploy.yml`，推送到 `main` 后会通过 GitHub Actions 构建并发布 `dist`。
 
-部署前把 `astro.config.mjs` 里的 `site` 改成你的真实域名。
+如果第一次部署后地址仍然是 404，在仓库 `Settings -> Pages` 中把 `Source` 设为 `GitHub Actions`。
