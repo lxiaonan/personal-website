@@ -13,7 +13,7 @@ const { post } = Astro.props;
 const { Content, headings } = await render(post);
 const formatter = new Intl.DateTimeFormat('zh-CN', { dateStyle: 'long' });
 const wordCount = post.body?.length ?? post.data.description.length;
-const readingMinutes = Math.max(1, Math.ceil(wordCount / 520));
+const readingMinutes = Math.max(1, Math.ceil(wordCount / 360));
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
@@ -124,25 +124,25 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 520));
 
   header {
     max-width: 860px;
-    margin-bottom: 44px;
+    margin-bottom: 36px;
     border-bottom: 1px solid var(--line-strong);
-    padding-bottom: 30px;
+    padding-bottom: 26px;
   }
 
   header h1 {
-    max-width: 900px;
+    max-width: 820px;
     margin: 0;
     color: var(--text);
-    font-size: clamp(2.15rem, 5.6vw, 4.7rem);
-    font-weight: 840;
+    font-size: clamp(1.9rem, 3.5vw, 3.15rem);
+    font-weight: 820;
     letter-spacing: 0;
-    line-height: 1.05;
+    line-height: 1.15;
   }
 
   header p:not(.eyebrow) {
     max-width: 760px;
     color: var(--muted);
-    font-size: 1.12rem;
+    font-size: 1.04rem;
   }
 
   .article-content {
