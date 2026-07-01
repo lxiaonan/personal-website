@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="YuNan logo">
+  <defs>
+    <linearGradient id="bg" x1="10" y1="6" x2="58" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4f46e5"/>
+      <stop offset="0.55" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="mark" x1="18" y1="13" x2="47" y2="51" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#bfe6ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
+  <path d="M18 17c0-2.2 1.8-4 4-4h3.2c1.4 0 2.7.7 3.5 1.9L32 20l3.3-5.1c.8-1.2 2.1-1.9 3.5-1.9H42c2.2 0 4 1.8 4 4 0 .8-.2 1.5-.7 2.2L36.8 32 46 45.9c.4.6.6 1.4.6 2.1 0 2.2-1.8 4-4 4h-3.1c-1.4 0-2.7-.7-3.5-1.9L32 44l-4 6.1c-.8 1.2-2.1 1.9-3.5 1.9h-3.1c-2.2 0-4-1.8-4-4 0-.8.2-1.5.6-2.1L27.2 32 18.7 19.2A4 4 0 0 1 18 17Z" fill="#ffffff" opacity=".16"/>
+  <path d="M20 16h7.8L32 25l4.2-9H44L35.7 33.2V48h-7.4V33.2L20 16Z" fill="url(#mark)"/>
+  <path d="M35.7 33.2 44 16h-7.8L32 25l-4.2-9H20l8.3 17.2V48h7.4V33.2Z" fill="none" stroke="#ffffff" stroke-opacity=".38" stroke-width="1.2"/>
+</svg>

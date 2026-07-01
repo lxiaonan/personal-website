@@ -1,0 +1,30 @@
+---
+title: "Java 后端看 RAG：本质是检索链路，不是魔法提示词"
+description: "RAG 要解决的是知识注入和事实性问题，核心在文档切分、向量检索、重排、引用和权限。"
+pubDate: 2026-06-24
+tags: ["AI", "RAG", "Java"]
+---
+
+RAG 很容易被讲成“把文档塞给大模型”。但从后端视角看，它更像一条检索系统：文档如何入库、如何切分、如何召回、如何过滤、如何拼上下文、如何回溯来源。
+
+## 文档切分决定召回质量
+
+切得太大，召回内容噪声高；切得太小，语义不完整。技术文档可以按标题层级切，接口文档可以按接口粒度切，FAQ 可以按问答对切。
+
+## 向量检索不是唯一检索
+
+实际系统里，向量检索常常要和关键词检索、标签过滤、时间过滤、权限过滤结合。只靠相似度分数，很容易把不该看的内容召回。
+
+## 引用来源比回答更重要
+
+企业知识库里的 AI 回答，最好能给出引用段落或文档链接。没有来源的回答，用户很难判断可信度。
+
+## 权限要进检索阶段
+
+不要等模型回答完再做权限过滤。权限应该在召回前或召回时生效，避免敏感内容进入上下文。
+
+## 参考资料
+
+- [Spring AI：Retrieval Augmented Generation](https://docs.spring.io/spring-ai/reference/api/retrieval-augmented-generation.html)
+- [LangChain4j Documentation](https://docs.langchain4j.dev/)
+- [LangChain4j GitHub](https://github.com/langchain4j/langchain4j)

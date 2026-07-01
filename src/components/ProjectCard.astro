@@ -1,0 +1,119 @@
+---
+interface Props {
+  project: {
+    name: string;
+    status: string;
+    description: string;
+    stack: string[];
+    href: string;
+    metrics?: string[];
+  };
+  index?: number;
+}
+
+const { project } = Astro.props;
+---
+
+<a class="project-item" href={project.href}>
+  <span class="project-status">{project.status}</span>
+  <strong>{project.name}</strong>
+  <em>{project.description}</em>
+  {
+    project.metrics && project.metrics.length > 0 && (
+      <ul class="project-metrics">
+        {project.metrics.slice(0, 2).map((metric) => <li>{metric}</li>)}
+      </ul>
+    )
+  }
+  <span class="project-stack">
+    {project.stack.slice(0, 4).map((item) => <i>{item}</i>)}
+  </span>
+</a>
+
+<style>
+  .project-item {
+    display: grid;
+    gap: 10px;
+    min-height: 214px;
+    align-content: start;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+    background: var(--surface);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
+    transition:
+      transform 160ms ease,
+      border-color 160ms ease,
+      box-shadow 160ms ease;
+  }
+
+  .project-item:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--accent), var(--line) 36%);
+    box-shadow: var(--shadow);
+  }
+
+  .project-status {
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    font-weight: 740;
+    text-transform: uppercase;
+  }
+
+  strong {
+    color: var(--text);
+    font-size: 1.3rem;
+    font-weight: 780;
+    line-height: 1.2;
+  }
+
+  em {
+    color: var(--muted);
+    font-size: 0.94rem;
+    font-style: normal;
+  }
+
+  .project-metrics {
+    display: grid;
+    gap: 6px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .project-metrics li {
+    position: relative;
+    padding-left: 15px;
+    color: var(--text);
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+
+  .project-metrics li::before {
+    position: absolute;
+    top: 0.64em;
+    left: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    content: '';
+  }
+
+  .project-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: auto;
+  }
+
+  .project-stack i {
+    border-radius: 999px;
+    padding: 3px 8px;
+    background: var(--surface-soft);
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-style: normal;
+  }
+</style>

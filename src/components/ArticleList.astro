@@ -1,0 +1,161 @@
+---
+import { postUrl } from '../utils/posts';
+
+interface Article {
+  id: string;
+  data: {
+    title: string;
+    description: string;
+    pubDate: Date;
+    tags: string[];
+  };
+}
+
+interface Props {
+  articles: Article[];
+}
+
+const { articles } = Astro.props;
+const formatter = new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' });
+const tagKey = (tag: string) => tag.trim().toLowerCase();
+---
+
+<div class="article-list">
+  {
+    articles.map((article, index) => (
+      <a
+        class="article-item"
+        href={postUrl(article.id)}
+        data-article-item
+        data-title={article.data.title.toLowerCase()}
+        data-description={article.data.description.toLowerCase()}
+        data-tags={article.data.tags.map(tagKey).join('|')}
+      >
+        <span class="article-main">
+          <span class="article-title-row">
+            <strong>{article.data.title}</strong>
+          </span>
+          <em>{article.data.description}</em>
+          <span class="article-meta">
+            <time datetime={article.data.pubDate.toISOString()}>{formatter.format(article.data.pubDate)}</time>
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <span class="article-tags">
+              {article.data.tags.slice(0, 3).map((tag) => <i>{tag}</i>)}
+            </span>
+          </span>
+        </span>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .article-list {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+
+  .article-item {
+    position: relative;
+    display: block;
+    border-bottom: 1px solid var(--line);
+    padding: 20px 4px 21px 22px;
+    background: transparent;
+    transition:
+      background 180ms ease,
+      padding-left 180ms ease;
+  }
+
+  .article-item:hover {
+    padding-left: 28px;
+    background: color-mix(in srgb, var(--surface-soft), transparent 68%);
+  }
+
+  .article-item[hidden] {
+    display: none;
+  }
+
+  .article-item::before {
+    position: absolute;
+    top: 24px;
+    left: 4px;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--line-strong);
+    content: '';
+    transition:
+      background 180ms ease,
+      transform 180ms ease;
+  }
+
+  .article-item:hover::before {
+    transform: scale(1.35);
+    background: var(--accent);
+  }
+
+  .article-main {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+  }
+
+  .article-title-row {
+    display: block;
+  }
+
+  strong {
+    color: var(--text);
+    font-size: clamp(1.08rem, 1.7vw, 1.28rem);
+    font-weight: 790;
+    line-height: 1.35;
+  }
+
+  em {
+    max-width: 760px;
+    color: var(--muted);
+    font-size: 0.92rem;
+    font-style: normal;
+    line-height: 1.6;
+  }
+
+  .article-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    align-items: center;
+    color: var(--faint);
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    text-transform: uppercase;
+  }
+
+  .article-meta > span:not(.article-tags)::before {
+    content: '#';
+    opacity: 0.6;
+  }
+
+  .article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .article-tags i {
+    border-radius: 999px;
+    padding: 2px 7px;
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-style: normal;
+    text-transform: none;
+  }
+
+  @media (max-width: 760px) {
+    .article-item {
+      padding-left: 20px;
+    }
+  }
+</style>

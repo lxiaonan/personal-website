@@ -1,0 +1,33 @@
+---
+title: "MCP 和 Agent 接入后端系统时，第一原则是最小权限"
+description: "MCP 让 Agent 连接工具和数据源更标准，但后端接入时要特别关注权限、命令白名单和审计。"
+pubDate: 2026-06-22
+tags: ["AI", "MCP", "Agent"]
+---
+
+MCP 的价值在于把模型和外部工具、数据源之间的连接标准化。对后端开发来说，它很像给 Agent 暴露了一组可发现、可调用的能力。
+
+但只要 Agent 能调用工具，就必须按生产系统的标准设计安全边界。
+
+## 工具能力要白名单
+
+不要把数据库、Shell、文件系统能力直接完整暴露给 Agent。更安全的做法是封装成明确工具，比如“查询某项目任务状态”“读取指定知识库文档”，而不是“执行任意 SQL”。
+
+## 参数要做服务端校验
+
+MCP 客户端传来的参数也可能被 prompt injection 影响。后端必须校验路径、ID、枚举、时间范围和用户权限。
+
+## 审计日志不能省
+
+Agent 做了什么、调用了哪个工具、入参是什么、返回了什么、用户是谁，都应该记录。否则出了问题无法复盘。
+
+## 和 RAG 的关系
+
+RAG 更偏“找资料回答”，MCP 更偏“连接工具行动”。真实 Agent 往往两者都需要：先检索上下文，再决定是否调用工具。
+
+## 参考资料
+
+- [Model Context Protocol GitHub](https://github.com/modelcontextprotocol)
+- [Model Context Protocol Java SDK](https://github.com/modelcontextprotocol/java-sdk)
+- [Spring：Introducing the Model Context Protocol Java SDK](https://spring.io/blog/2025/02/14/mcp-java-sdk-released-2)
+- [Linux.do：Agent 开发搭建与开发讨论](https://linux.do/t/topic/1356426)

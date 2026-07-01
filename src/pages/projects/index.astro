@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { projectCard } from '../../utils/projects';
+
+const projects = (await getCollection('projects'))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map(projectCard);
+---
+
+<BaseLayout title="项目" description="Java 后端开发者项目作品集。">
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Projects</p>
+      <h1 class="section-title">代表项目。</h1>
+      <p class="section-copy">
+        基于真实代码与提交记录整理，不照搬 commit 文案，重点说明场景、方案、收益和个人能力。
+      </p>
+      <div class="project-grid">
+        {projects.map((project, index) => <ProjectCard project={project} index={index} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 34px;
+  }
+
+  @media (max-width: 900px) {
+    .project-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

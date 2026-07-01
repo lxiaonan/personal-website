@@ -1,0 +1,184 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { experiences, profile, stackGroups } from '../../data/site';
+import { withBase } from '../../utils/path';
+---
+
+<BaseLayout title="关于" description="关于 Java 后端开发者的经历、技术栈和联系方式。">
+  <section class="section">
+    <div class="container two-col grid">
+      <div class="prose">
+        <p class="eyebrow">About</p>
+        <h1>你好，我是{profile.name}。</h1>
+        <p>
+          我是一名 Java 后端开发者，关注服务稳定性、数据库性能、异步链路、工程效率和可维护的系统边界。
+          这个网站用于沉淀项目、文章和阶段性思考，也作为对外展示的简历入口。
+        </p>
+        <p>
+          如果你正在寻找一名能把业务需求落到稳定服务里的后端工程师，可以通过下面的链接了解我。
+        </p>
+        <div class="button-row">
+          {profile.resume && <a class="button primary" href={withBase(profile.resume)}>下载简历</a>}
+          <a class="button" href={profile.github}>GitHub</a>
+          <a class="button" href={profile.csdn}>CSDN</a>
+          <a class="button" href={profile.linuxdo}>Linux.do</a>
+        </div>
+      </div>
+
+      <aside class="contact-card">
+        <h2>Contact</h2>
+        <dl>
+          <div>
+            <dt>Email</dt>
+            <dd>{profile.email}</dd>
+          </div>
+          <div>
+            <dt>Location</dt>
+            <dd>{profile.location}</dd>
+          </div>
+          <div>
+            <dt>Focus</dt>
+            <dd>Java Backend / Distributed Systems</dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Capability</p>
+      <h2 class="section-title">能力拼图。</h2>
+      <div class="capability-grid">
+        {
+          stackGroups.map((group) => (
+            <article>
+              <h3>{group.title}</h3>
+              <ul>
+                {group.items.map((item) => <li>{item}</li>)}
+              </ul>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">Timeline</p>
+      <h2 class="section-title">经历摘要。</h2>
+      <div class="timeline-list">
+        {
+          experiences.map((item) => (
+            <article>
+              <span>{item.year}</span>
+              <div>
+                <h3>{item.title}</h3>
+                <p>{item.detail}</p>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact-card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .contact-card h2 {
+    margin: 0 0 18px;
+    font-size: 1.45rem;
+  }
+
+  dl {
+    display: grid;
+    gap: 0;
+    margin: 0;
+  }
+
+  dl div {
+    border-bottom: 1px solid var(--line);
+    padding-block: 14px;
+  }
+
+  dt {
+    color: var(--muted);
+    font-size: 0.84rem;
+    font-weight: 720;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 740;
+  }
+
+  .capability-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 26px;
+  }
+
+  .capability-grid article {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    background: var(--surface);
+  }
+
+  .capability-grid h3 {
+    margin: 0 0 10px;
+  }
+
+  .capability-grid ul {
+    display: grid;
+    gap: 6px;
+    padding-left: 18px;
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .timeline-list {
+    display: grid;
+    margin-top: 26px;
+    border-top: 1px solid var(--line);
+  }
+
+  .timeline-list article {
+    display: grid;
+    grid-template-columns: 140px minmax(0, 1fr);
+    gap: 18px;
+    border-bottom: 1px solid var(--line);
+    padding-block: 20px;
+  }
+
+  .timeline-list span {
+    color: var(--accent);
+    font-weight: 780;
+  }
+
+  .timeline-list h3 {
+    margin: 0 0 6px;
+  }
+
+  .timeline-list p {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  @media (max-width: 860px) {
+    .capability-grid,
+    .timeline-list article {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

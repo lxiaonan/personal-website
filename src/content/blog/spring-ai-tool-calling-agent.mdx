@@ -1,0 +1,30 @@
+---
+title: "Spring AI Tool Calling：让模型调用工具前，先设计边界"
+description: "Tool Calling 的重点不是让模型能调接口，而是参数约束、权限控制、审计日志和失败回退。"
+pubDate: 2026-06-23
+tags: ["AI", "Spring AI", "Agent"]
+---
+
+Tool Calling 让大模型可以调用后端函数，比如查订单、查报表、创建任务、发送通知。它看起来很像“自然语言调用接口”，但工程上必须更谨慎。
+
+## 工具要小而明确
+
+一个工具最好只做一件事。比如 `queryCampaignCost` 比 `operateAdPlatform` 安全得多。工具粒度越大，模型误用的风险越高。
+
+## 参数要有 Schema
+
+工具入参不能只靠自然语言描述。要明确字段类型、必填项、枚举值、范围和默认值。后端仍然要做二次校验，不能因为调用方是模型就放松。
+
+## 权限不能交给模型判断
+
+模型可以选择工具，但不能决定用户有没有权限。权限校验必须在服务端执行，和普通接口一样走登录态、角色、数据范围。
+
+## 失败要可解释
+
+工具调用失败时，要返回模型能理解、用户也能理解的错误。比如“时间范围不能超过 31 天”，比“SQL Error”更适合进入对话。
+
+## 参考资料
+
+- [Spring AI Advisors API](https://docs.spring.io/spring-ai/reference/api/advisors.html)
+- [Spring AI Tool Calling 文档](https://docs.spring.io/spring-ai/reference/api/tools.html)
+- [Baeldung：Spring AI Advisors](https://www.baeldung.com/spring-ai-advisors)

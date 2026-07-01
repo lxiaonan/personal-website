@@ -1,0 +1,32 @@
+---
+title: "MyBatis 动态 SQL 写复杂查询时，最怕的是不可预期"
+description: "动态 SQL 不只是 if 和 foreach，重点是参数归一化、索引命中、可读性和执行计划。"
+pubDate: 2026-06-29
+tags: ["MyBatis", "SQL", "Database"]
+---
+
+MyBatis 动态 SQL 很适合后台筛选、报表查询和运营平台列表页。但复杂查询一多，XML 里堆满 `if`、`choose`、`foreach`，最后生成什么 SQL，开发自己都不一定看得清。
+
+动态 SQL 的核心不是“能拼出来”，而是“拼出来的 SQL 稳定、可解释、能走索引”。
+
+## 参数先在 Java 层归一化
+
+空字符串、空集合、前后空格、默认时间范围，最好在进入 Mapper 前处理掉。不要把所有判空逻辑都塞进 XML，否则查询条件会变得很难测试。
+
+## 少写万能查询
+
+一个 Mapper 方法支持几十个可选条件，看起来复用，实际上会让执行计划非常不稳定。核心查询可以拆成多个更明确的方法，让数据库更容易命中合适索引。
+
+## foreach 要控制规模
+
+`IN` 条件很好用，但列表过大时会拖慢 SQL。批量查询可以考虑分片、临时表、批处理任务，或者把大集合写入中间表后 join。
+
+## 上线前看 EXPLAIN
+
+动态 SQL 最后还是 SQL。对核心列表、报表、导出接口，要把典型参数生成的 SQL 打出来，用 `EXPLAIN` 看索引、扫描行数和排序方式。
+
+## 参考资料
+
+- [CSDN：MyBatis 动态 SQL 核心知识与最佳实践](https://blog.csdn.net/MoneyHacksPro/article/details/150973666)
+- [CSDN：MyBatis 动态 SQL 优化实战避坑](https://blog.csdn.net/2301_80964361/article/details/161394396)
+- [MyBatis 官方文档：Dynamic SQL](https://mybatis.org/mybatis-3/dynamic-sql.html)

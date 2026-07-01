@@ -1,0 +1,166 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { projectSlug } from '../../utils/projects';
+import { withBase } from '../../utils/path';
+
+export async function getStaticPaths() {
+  const projects = await getCollection('projects');
+  return projects.map((project) => ({
+    params: { slug: projectSlug(project.id) },
+    props: { project }
+  }));
+}
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+---
+
+<BaseLayout title={project.data.title} description={project.data.summary}>
+  <article class="project-detail section">
+    <div class="container detail-layout">
+      <aside class="project-rail" aria-label="项目概要">
+        <a class="back-link" href={withBase('/projects/')}>返回项目</a>
+        <p class="eyebrow">{project.data.status}</p>
+        <h1>{project.data.title}</h1>
+        <p>{project.data.summary}</p>
+        <dl>
+          <div>
+            <dt>周期</dt>
+            <dd>{project.data.period}</dd>
+          </div>
+          <div>
+            <dt>角色</dt>
+            <dd>{project.data.role}</dd>
+          </div>
+        </dl>
+        <ul class="chip-list">
+          {project.data.stack.map((item) => <li class="chip">{item}</li>)}
+        </ul>
+      </aside>
+
+      <div class="project-body">
+        <section class="impact-panel" aria-label="项目成效">
+          <p class="eyebrow">Impact</p>
+          <ul>
+            {project.data.metrics.map((metric) => <li>{metric}</li>)}
+          </ul>
+        </section>
+        <div class="prose">
+          <Content />
+        </div>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .detail-layout {
+    display: grid;
+    grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+    gap: 72px;
+    align-items: start;
+  }
+
+  .project-rail {
+    position: sticky;
+    top: 92px;
+    display: grid;
+    gap: 16px;
+  }
+
+  .back-link {
+    display: inline-flex;
+    width: fit-content;
+    color: var(--muted);
+    font-weight: 720;
+  }
+
+  .project-rail h1 {
+    margin: 0;
+    font-size: clamp(2.1rem, 4vw, 3.25rem);
+    letter-spacing: 0;
+    line-height: 1.08;
+  }
+
+  .project-rail p:not(.eyebrow) {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  dl {
+    display: grid;
+    gap: 0;
+    margin: 10px 0 0;
+    border-top: 1px solid var(--line);
+  }
+
+  dl div {
+    border-bottom: 1px solid var(--line);
+    padding-block: 13px;
+  }
+
+  dt {
+    color: var(--faint);
+    font-family: var(--mono);
+    font-size: 0.74rem;
+  }
+
+  dd {
+    margin: 2px 0 0;
+    color: var(--text);
+    font-weight: 720;
+    line-height: 1.45;
+  }
+
+  .project-body {
+    display: grid;
+    gap: 34px;
+    min-width: 0;
+  }
+
+  .impact-panel {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    background: color-mix(in srgb, var(--surface), transparent 4%);
+  }
+
+  .impact-panel ul {
+    display: grid;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .impact-panel li {
+    position: relative;
+    padding-left: 18px;
+    color: var(--text);
+    font-weight: 690;
+    line-height: 1.55;
+  }
+
+  .impact-panel li::before {
+    position: absolute;
+    top: 0.68em;
+    left: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--success);
+    content: '';
+  }
+
+  @media (max-width: 900px) {
+    .detail-layout {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+
+    .project-rail {
+      position: static;
+    }
+  }
+</style>

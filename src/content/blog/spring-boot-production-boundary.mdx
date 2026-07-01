@@ -1,0 +1,33 @@
+---
+title: "Spring Boot 项目别只会启动，先把边界搭清楚"
+description: "从 Controller、Service、Mapper、配置和异常处理几个维度，整理一个 Java 后端项目的生产化骨架。"
+pubDate: 2026-07-01
+tags: ["Spring Boot", "Java", "Architecture"]
+---
+
+很多 Spring Boot 入门教程会从“创建项目、启动接口、返回 Hello World”开始，这当然必要，但真正进入业务系统后，更重要的问题是：代码边界是否清楚，失败是否可观测，配置是否能被环境接管。
+
+我更倾向把 Spring Boot 项目拆成几条稳定边界。
+
+## Web 层只做协议适配
+
+Controller 不应该堆业务逻辑。它适合做参数接收、权限注解、基础校验和结果包装。真正的业务规则放到 Service，数据库访问放到 Mapper 或 Repository。
+
+这样做有两个好处：接口协议变化时不影响核心业务，业务规则也更容易写测试。
+
+## Service 层表达业务动作
+
+Service 方法名最好接近业务动作，而不是简单叫 `save`、`update`。比如批量创建广告时，可以拆成 `previewBatchCreate`、`commitBatchCreate`、`resubmitFailedCreative`。名字越具体，后面排查问题越省心。
+
+## 配置要能区分环境
+
+连接池、Redis、MQ、第三方 API 地址、超时时间、开关项，都不要写死。开发、测试、生产环境的配置应该独立，并且敏感信息交给环境变量或配置中心。
+
+## 异常要分层处理
+
+参数错误、业务冲突、第三方接口失败、数据库异常，不应该全部抛成一个 `RuntimeException`。至少要在统一异常处理里区分错误码和日志等级，否则线上报错会变成一锅粥。
+
+## 参考资料
+
+- [菜鸟教程：Java SpringBoot 框架](https://www.runoob.com/java/java-springboot-framework.html)
+- [Spring Boot 官方文档](https://docs.spring.io/spring-boot/)

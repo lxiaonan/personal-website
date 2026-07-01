@@ -1,0 +1,55 @@
+---
+import { profile } from '../data/site';
+import { withBase } from '../utils/path';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <p>© {year} {profile.name}. Built with Astro, MDX and quiet backend stubbornness.</p>
+    <div>
+      <a href={withBase('/rss.xml')}>RSS</a>
+      <a href={profile.github}>GitHub</a>
+      <a href={profile.csdn}>CSDN</a>
+      <a href={profile.linuxdo}>Linux.do</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--line);
+    padding-block: 28px;
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  .footer-inner p {
+    margin: 0;
+  }
+
+  .footer-inner div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-inner a {
+    color: var(--text);
+    font-weight: 720;
+  }
+
+  @media (max-width: 720px) {
+    .footer-inner {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+</style>

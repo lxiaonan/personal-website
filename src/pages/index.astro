@@ -1,0 +1,346 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArticleList from '../components/ArticleList.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { profile, resourceGroups, stackGroups } from '../data/site';
+import { projectCard } from '../utils/projects';
+import { withBase } from '../utils/path';
+
+const articles = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 4);
+
+const projects = (await getCollection('projects'))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map(projectCard);
+---
+
+<BaseLayout title="Java Backend Developer" description={profile.intro}>
+  <section class="hero">
+    <div class="container hero-layout">
+      <div class="hero-copy">
+        <p class="eyebrow">Java Backend Developer</p>
+        <h1>Java 后端开发，做复杂业务里的可靠后端链路。</h1>
+        <p>{profile.intro}</p>
+        <div class="button-row">
+          <a class="button primary" href={withBase('/projects/')}>查看项目</a>
+          <a class="button" href={withBase('/blog/')}>阅读文章</a>
+          {profile.resume && <a class="button" href={withBase(profile.resume)}>简历 PDF</a>}
+        </div>
+      </div>
+
+      <aside class="profile-card" aria-label="个人概要">
+        <div class="avatar">YN</div>
+        <div>
+          <h2>{profile.name}</h2>
+          <p>{profile.handle}</p>
+        </div>
+        <dl>
+          <div>
+            <dt>Focus</dt>
+            <dd>Media API / Batch Workflow / BI SQL</dd>
+          </div>
+          <div>
+            <dt>Location</dt>
+            <dd>{profile.location}</dd>
+          </div>
+          <div>
+            <dt>Contact</dt>
+            <dd>{profile.email}</dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section compact-section">
+    <div class="container stack-row" aria-label="技术栈">
+      {stackGroups.flatMap((group) => group.items).slice(0, 12).map((item) => <span>{item}</span>)}
+    </div>
+  </section>
+
+  <section class="section rule" id="projects">
+    <div class="container split-section">
+      <div class="section-intro">
+        <p class="eyebrow">Projects</p>
+        <h2 class="section-title">代表项目</h2>
+        <p class="section-copy">这些案例基于真实代码实现整理，重点展示我解决的业务场景、技术取舍和效率提升。</p>
+        <a class="text-link" href={withBase('/projects/')}>全部项目</a>
+      </div>
+      <div class="project-grid">
+        {projects.map((project, index) => <ProjectCard project={project} index={index} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section rule" id="writing">
+    <div class="container split-section">
+      <div class="section-intro">
+        <p class="eyebrow">Writing</p>
+        <h2 class="section-title">最近文章</h2>
+        <p class="section-copy">记录 Java 后端、系统设计、缓存、消息队列、数据库和线上问题复盘。</p>
+        <a class="text-link" href={withBase('/blog/')}>文章归档</a>
+      </div>
+      <ArticleList articles={articles} />
+    </div>
+  </section>
+
+  <section class="section rule" id="resources">
+    <div class="container">
+      <div class="resource-head">
+        <div>
+          <p class="eyebrow">Resources</p>
+          <h2 class="section-title">常用入口</h2>
+        </div>
+        <form class="search-box" action="https://www.bing.com/search" method="get" target="_blank">
+          <span aria-hidden="true">B</span>
+          <input name="q" type="search" placeholder="Bing 搜索技术问题或文档" />
+        </form>
+      </div>
+      <div class="resource-grid">
+        {
+          resourceGroups.flatMap((group) => group.items).map((item) => (
+            <a class="resource-card" href={item.href} target="_blank" rel="noreferrer">
+              <span>{item.icon}</span>
+              <strong>{item.name}</strong>
+              <em>{item.description}</em>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: 72px 30px;
+  }
+
+  .hero-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 54px;
+    align-items: center;
+  }
+
+  .hero-copy h1 {
+    max-width: 760px;
+    margin: 0;
+    font-size: clamp(2rem, 3.45vw, 3.15rem);
+    font-weight: 820;
+    letter-spacing: 0;
+    line-height: 1.13;
+  }
+
+  .hero-copy p:not(.eyebrow) {
+    max-width: 660px;
+    margin-block: 22px 26px;
+    color: var(--muted);
+    font-size: 1.1rem;
+  }
+
+  .profile-card {
+    display: grid;
+    gap: 16px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 22px;
+    background: color-mix(in srgb, var(--surface), transparent 4%);
+    box-shadow: var(--shadow);
+  }
+
+  .avatar {
+    display: grid;
+    width: 62px;
+    height: 62px;
+    place-items: center;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--accent-strong), var(--accent));
+    color: #fff;
+    font-weight: 860;
+  }
+
+  .profile-card h2 {
+    margin: 0;
+    font-size: 1.4rem;
+  }
+
+  .profile-card p {
+    margin: 2px 0 0;
+    color: var(--muted);
+  }
+
+  dl {
+    display: grid;
+    gap: 0;
+    margin: 0;
+  }
+
+  dl div {
+    border-top: 1px solid var(--line);
+    padding-block: 12px;
+  }
+
+  dt {
+    color: var(--faint);
+    font-family: var(--mono);
+    font-size: 0.74rem;
+  }
+
+  dd {
+    margin: 2px 0 0;
+    font-weight: 700;
+  }
+
+  .compact-section {
+    padding-block: 24px 58px;
+  }
+
+  .stack-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+  }
+
+  .stack-row span {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 7px 12px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .split-section {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 54px;
+    align-items: start;
+  }
+
+  .section-intro {
+    position: sticky;
+    top: 92px;
+  }
+
+  .text-link {
+    display: inline-flex;
+    margin-top: 10px;
+    color: var(--accent-strong);
+    font-weight: 760;
+  }
+
+  .project-grid,
+  .resource-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .resource-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+    gap: 24px;
+    align-items: end;
+    margin-bottom: 20px;
+  }
+
+  .search-box {
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+  }
+
+  .search-box span {
+    display: grid;
+    height: 44px;
+    place-items: center;
+    color: var(--accent-strong);
+    font-weight: 860;
+  }
+
+  .search-box input {
+    width: 100%;
+    height: 44px;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    outline: none;
+  }
+
+  .resource-card {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 3px 12px;
+    align-items: center;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 15px;
+    background: var(--surface);
+    transition:
+      transform 160ms ease,
+      box-shadow 160ms ease,
+      border-color 160ms ease;
+  }
+
+  .resource-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--accent), var(--line) 40%);
+    box-shadow: var(--shadow);
+  }
+
+  .resource-card span {
+    grid-row: span 2;
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border-radius: 12px;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    font-weight: 860;
+  }
+
+  .resource-card strong {
+    line-height: 1.2;
+  }
+
+  .resource-card em {
+    overflow: hidden;
+    color: var(--muted);
+    font-size: 0.88rem;
+    font-style: normal;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 900px) {
+    .hero-layout,
+    .split-section,
+    .resource-head,
+    .project-grid,
+    .resource-grid {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+
+    .section-intro {
+      position: static;
+    }
+
+    .hero {
+      padding-block-start: 54px;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .hero-copy h1 {
+      font-size: clamp(2rem, 9vw, 3.1rem);
+    }
+  }
+</style>
