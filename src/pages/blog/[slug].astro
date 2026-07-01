@@ -14,6 +14,29 @@ const { Content, headings } = await render(post);
 const formatter = new Intl.DateTimeFormat('zh-CN', { dateStyle: 'long' });
 const wordCount = post.body?.length ?? post.data.description.length;
 const readingMinutes = Math.max(1, Math.ceil(wordCount / 360));
+const glossaryTerms = [
+  ['幂等', '同一业务动作重复执行多次，最终业务结果保持一致。重点不是拦请求，而是让重试、补偿和并发都能回到同一个结果。'],
+  ['MCP', 'Model Context Protocol，用标准协议把模型连接到外部工具和数据源。后端接入时要按开放 API 的标准做权限、审计和限流。'],
+  ['Agent', '能基于上下文选择工具、执行步骤并反馈结果的智能体。工程落地时必须限制工具边界，不能把系统控制权完全交给模型。'],
+  ['RAG', 'Retrieval-Augmented Generation，先检索知识库或业务资料，再把结果交给模型生成回答，适合解决“模型不知道内部知识”的问题。'],
+  ['Tool Calling', '让模型以结构化参数调用后端函数。真正难点在参数 Schema、权限校验、失败语义和审计闭环。'],
+  ['Redis', '常用内存数据库，适合缓存、计数、分布式锁等场景。缓存设计要同时考虑命中率、一致性和可观测性。'],
+  ['延迟双删', '更新数据前后分两次删除缓存，用第二次延迟删除兜底并发读写交错导致的旧值回填。延迟时间需要结合业务链路评估。'],
+  ['缓存穿透', '请求查询不存在的数据，导致流量绕过缓存打到数据库。常见处理方式是空值缓存、布隆过滤器和参数校验。'],
+  ['缓存击穿', '热点 Key 过期瞬间大量请求同时回源数据库。常见处理方式是互斥锁、逻辑过期或热点预热。'],
+  ['缓存雪崩', '大量缓存同时失效或 Redis 不可用，导致数据库瞬时承压。需要过期时间打散、降级、限流和多级缓存。'],
+  ['MQ', '消息队列，用于削峰、异步解耦和最终一致性。业务上要关注消息幂等、重试、死信和补偿。'],
+  ['XXL-Job', 'Java 生态常用分布式任务调度平台，适合定时同步、补偿任务、数据预计算等后台任务。'],
+  ['StarRocks', '面向分析场景的 MPP 数据库，适合 BI 查询和聚合分析。复杂查询要重视分区、谓词下推和 SQL 规划。'],
+  ['CTE', 'Common Table Expression，SQL 的 WITH 子句。适合把复杂分析 SQL 拆成可解释、可排查的多个阶段。'],
+  ['SQL Planner', '把页面配置转换成中间语义，再生成 SQL 的规划层。它能避免业务代码里到处拼字符串。'],
+  ['upsert', '存在则更新，不存在则插入。常用于第三方数据同步和补跑场景，配合唯一键保证重复执行安全。'],
+  ['虚拟线程', 'JDK 21 的轻量级线程能力，适合大量阻塞 I/O 场景，但仍然要配合限流、超时和资源保护。'],
+  ['MyBatis', 'Java 常用持久层框架。动态 SQL 要控制条件组合复杂度，避免 mapper 变成不可维护的字符串工厂。'],
+  ['批创', '批量创建投放对象的业务流程，通常涉及模板预览、批次提交、媒体接口调用、局部失败和重提。'],
+  ['分群', '按行为、标签或分析结果圈出一组用户，供后续分析、看板或投放使用。核心是来源可追溯和结果可复现。'],
+  ['看板预计算', '提前计算固定看板的查询结果，减少用户访问时的等待。要处理配置版本、任务状态和缓存一致性。']
+];
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
@@ -64,6 +87,62 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 360));
     </div>
   </article>
 </BaseLayout>
+
+<script is:inline define:vars={{ glossaryTerms }}>
+  const prose = document.querySelector('.prose');
+  const usedTerms = new Set();
+  const skipTags = new Set(['A', 'CODE', 'PRE', 'SCRIPT', 'STYLE', 'BUTTON', 'H1', 'H2', 'H3']);
+
+  function hasSkippedParent(node) {
+    let parent = node.parentElement;
+    while (parent && parent !== prose) {
+      if (skipTags.has(parent.tagName) || parent.classList.contains('term-tip')) return true;
+      parent = parent.parentElement;
+    }
+    return false;
+  }
+
+  function decorateTerm(textNode, term, description) {
+    const text = textNode.nodeValue ?? '';
+    const index = text.indexOf(term);
+    if (index < 0) return false;
+
+    const wrapper = document.createElement('span');
+    wrapper.className = 'term-tip';
+    wrapper.tabIndex = 0;
+    wrapper.setAttribute('role', 'note');
+    wrapper.setAttribute('aria-label', `${term}：${description}`);
+    wrapper.textContent = term;
+
+    const bubble = document.createElement('span');
+    bubble.className = 'term-bubble';
+    bubble.textContent = description;
+    wrapper.appendChild(bubble);
+
+    const fragment = document.createDocumentFragment();
+    fragment.append(document.createTextNode(text.slice(0, index)));
+    fragment.append(wrapper);
+    fragment.append(document.createTextNode(text.slice(index + term.length)));
+    textNode.parentNode?.replaceChild(fragment, textNode);
+    return true;
+  }
+
+  if (prose) {
+    for (const [term, description] of glossaryTerms) {
+      if (usedTerms.has(term)) continue;
+      const walker = document.createTreeWalker(prose, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          const value = node.nodeValue ?? '';
+          if (!value.includes(term)) return NodeFilter.FILTER_REJECT;
+          if (hasSkippedParent(node)) return NodeFilter.FILTER_REJECT;
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      const match = walker.nextNode();
+      if (match && decorateTerm(match, term, description)) usedTerms.add(term);
+    }
+  }
+</script>
 
 <style>
   .article-section {
@@ -184,6 +263,19 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 360));
     max-width: none;
   }
 
+  .prose :global(strong) {
+    color: var(--text);
+    font-weight: 820;
+    background: linear-gradient(180deg, transparent 56%, color-mix(in srgb, var(--accent-soft), transparent 18%) 0);
+  }
+
+  .prose :global(mark) {
+    border-radius: 4px;
+    padding: 0 0.22em;
+    background: color-mix(in srgb, var(--success), transparent 84%);
+    color: var(--text);
+  }
+
   .prose :global(h2) {
     scroll-margin-top: 96px;
     border-top: 1px solid var(--line);
@@ -191,11 +283,78 @@ const readingMinutes = Math.max(1, Math.ceil(wordCount / 360));
   }
 
   .prose :global(blockquote) {
-    border-left: 3px solid var(--accent);
+    position: relative;
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
     margin-inline: 0;
-    padding: 12px 0 12px 18px;
+    padding: 14px 18px;
     color: var(--text);
-    background: color-mix(in srgb, var(--accent-soft), transparent 62%);
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--accent-soft), transparent 12%), transparent 68%),
+      color-mix(in srgb, var(--surface), transparent 8%);
+  }
+
+  .prose :global(blockquote p) {
+    margin-block: 0.35em;
+    color: var(--text);
+    font-size: 0.98rem;
+  }
+
+  .prose :global(.term-tip) {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    border-bottom: 1px dashed color-mix(in srgb, var(--accent), transparent 20%);
+    color: var(--accent-strong);
+    font-weight: 760;
+    cursor: help;
+    outline: none;
+  }
+
+  .prose :global(.term-tip::after) {
+    content: '?';
+    display: inline-grid;
+    width: 1.05em;
+    height: 1.05em;
+    margin-left: 0.18em;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    font-family: var(--mono);
+    font-size: 0.64em;
+    line-height: 1;
+    transform: translateY(-0.08em);
+  }
+
+  .prose :global(.term-bubble) {
+    position: absolute;
+    z-index: 4;
+    left: 50%;
+    bottom: calc(100% + 10px);
+    width: min(320px, calc(100vw - 42px));
+    transform: translateX(-50%) translateY(4px);
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: color-mix(in srgb, var(--surface), var(--bg) 8%);
+    box-shadow: var(--shadow);
+    color: var(--text);
+    font-size: 0.84rem;
+    font-weight: 620;
+    line-height: 1.55;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 150ms ease,
+      transform 150ms ease;
+  }
+
+  .prose :global(.term-tip:hover .term-bubble),
+  .prose :global(.term-tip:focus-visible .term-bubble) {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
   }
 
   @media (max-width: 1060px) {
