@@ -10,6 +10,7 @@ export async function GET() {
         title: post.data.title,
         description: post.data.description,
         tags: post.data.tags,
+        category: post.data.category,
         url: postUrl(post.id)
       }))
     ),

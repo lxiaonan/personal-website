@@ -1,42 +1,46 @@
 :root {
-  color-scheme: light dark;
-  --bg: #f8fafc;
+  color-scheme: light;
+  --bg: #f7f8fa;
   --surface: #ffffff;
   --surface-soft: #eef2f7;
   --text: #111827;
-  --muted: #64748b;
-  --faint: #94a3b8;
+  --muted: #58677c;
+  --faint: #687990;
   --line: rgba(15, 23, 42, 0.1);
   --line-strong: rgba(15, 23, 42, 0.18);
-  --accent: #4f46e5;
-  --accent-strong: #3730a3;
-  --accent-soft: #e7e7ff;
+  --accent: #2864dc;
+  --accent-strong: #1e4eae;
+  --accent-soft: #eaf0fc;
   --success: #0f766e;
   --radius: 10px;
-  --content: min(1080px, calc(100vw - 44px));
-  --content-narrow: min(760px, calc(100vw - 44px));
+  --content: min(1440px, calc(100% - clamp(40px, 8vw, 128px)));
+  --content-narrow: min(880px, calc(100% - 40px));
   --shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
+  --body-copy: #3c4c62;
   --mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
   font-family:
     "Aptos",
-    "Segoe UI",
+    "Microsoft YaHei",
+    "PingFang SC",
     "Noto Sans SC",
     system-ui,
     sans-serif;
 }
 
 [data-theme='dark'] {
+  color-scheme: dark;
+  --body-copy: #c5cfdf;
   --bg: #0b1020;
   --surface: #111827;
   --surface-soft: #182235;
   --text: #f8fafc;
   --muted: #a6b3c4;
-  --faint: #728096;
+  --faint: #93a3bb;
   --line: rgba(248, 250, 252, 0.1);
   --line-strong: rgba(248, 250, 252, 0.18);
-  --accent: #a5b4fc;
-  --accent-strong: #c7d2fe;
-  --accent-soft: #22294b;
+  --accent: #9dbbff;
+  --accent-strong: #c1d4ff;
+  --accent-soft: #192c49;
   --success: #5eead4;
   --shadow: 0 18px 52px rgba(0, 0, 0, 0.28);
 }
@@ -53,9 +57,7 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-  background:
-    radial-gradient(circle at 12% -8%, color-mix(in srgb, var(--accent-soft), transparent 30%), transparent 28rem),
-    linear-gradient(180deg, var(--bg), color-mix(in srgb, var(--surface-soft), transparent 65%));
+  background: var(--bg);
   color: var(--text);
   font-size: 16px;
   line-height: 1.68;
@@ -82,7 +84,11 @@ input {
 }
 
 .section {
-  padding-block: 58px;
+  padding-block: clamp(42px, 4.5vw, 72px);
+}
+
+.section[id] {
+  scroll-margin-top: 80px;
 }
 
 .rule {
@@ -189,7 +195,11 @@ input {
 }
 
 .prose {
-  max-width: 760px;
+  min-width: 0;
+  max-width: 960px;
+  font-size: 1.0625rem;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
 }
 
 .prose h1,
@@ -216,7 +226,7 @@ input {
 
 .prose p,
 .prose li {
-  color: var(--muted);
+  color: var(--body-copy);
 }
 
 .prose a {
@@ -248,10 +258,36 @@ input {
   color: inherit;
 }
 
+.prose table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  margin-block: 24px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.prose th,
+.prose td {
+  border-bottom: 1px solid var(--line);
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose th {
+  background: var(--surface-soft);
+  color: var(--text);
+}
+
+.prose td {
+  color: var(--muted);
+}
+
 @media (max-width: 860px) {
   :root {
-    --content: min(100vw - 28px, 1080px);
-    --content-narrow: min(100vw - 28px, 760px);
+    --content: calc(100% - 36px);
+    --content-narrow: min(100% - 36px, 880px);
   }
 
   .section {
@@ -263,3 +299,22 @@ input {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 900px) {
+  .section[id] {
+    scroll-margin-top: 180px;
+  }
+}
+
+main { min-height: calc(100vh - 180px); }
+::selection { background: var(--accent-soft); color: var(--accent-strong); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
+.skip-link { position: fixed; top: 12px; left: 18px; z-index: 100; padding: 10px 16px; border-radius: 8px; background: var(--surface); color: var(--accent-strong); transform: translateY(-160%); }
+.skip-link:focus { transform: translateY(0); }
+.prose img { display: block; max-width: 100%; height: auto; border-radius: var(--radius); }
+.prose h2, .prose h3 { scroll-margin-top: 110px; }
+.prose ul, .prose ol { padding-left: 1.5em; }
+.prose li + li { margin-top: 0.4em; }
+.prose blockquote { margin-inline: 0; border-left: 3px solid var(--accent); padding: 12px 22px; background: var(--surface-soft); }
+@media (max-width: 900px) { .prose h2, .prose h3 { scroll-margin-top: 180px; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }

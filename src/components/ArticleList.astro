@@ -59,7 +59,7 @@ const tagKey = (tag: string) => tag.trim().toLowerCase();
     position: relative;
     display: block;
     border-bottom: 1px solid var(--line);
-    padding: 20px 4px 21px 22px;
+    padding: 25px 42px 25px 22px;
     background: transparent;
     transition:
       background 180ms ease,
@@ -75,9 +75,16 @@ const tagKey = (tag: string) => tag.trim().toLowerCase();
     display: none;
   }
 
+  .article-item::after {
+    content: '↗';
+    position: absolute; top: 26px; right: 10px;
+    color: var(--faint); transition: color 180ms ease, transform 180ms ease;
+  }
+  .article-item:hover::after { color: var(--accent); transform: translate(2px, -2px); }
+
   .article-item::before {
     position: absolute;
-    top: 24px;
+    top: 34px;
     left: 4px;
     width: 7px;
     height: 7px;
@@ -96,7 +103,7 @@ const tagKey = (tag: string) => tag.trim().toLowerCase();
 
   .article-main {
     display: grid;
-    gap: 7px;
+    gap: 10px;
     min-width: 0;
   }
 
@@ -108,11 +115,11 @@ const tagKey = (tag: string) => tag.trim().toLowerCase();
     color: var(--text);
     font-size: clamp(1.08rem, 1.7vw, 1.28rem);
     font-weight: 790;
-    line-height: 1.35;
+    line-height: 1.5;
   }
 
   em {
-    max-width: 760px;
+    max-width: 980px;
     color: var(--muted);
     font-size: 0.92rem;
     font-style: normal;

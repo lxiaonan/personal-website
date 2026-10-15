@@ -7,7 +7,12 @@
     "dev": "astro dev --host 127.0.0.1",
     "build": "astro build",
     "preview": "astro preview --host 127.0.0.1",
-    "check": "astro check"
+    "check": "astro check",
+    "deploy": "node scripts/deploy.mjs",
+    "deploy:update": "node scripts/deploy.mjs --update-only",
+    "deploy:prepare": "node scripts/deploy.mjs --prepare-only",
+    "deploy:https": "node scripts/deploy.mjs --https-only",
+    "test:deploy": "node --test scripts/deploy.test.mjs"
   },
   "dependencies": {
     "@astrojs/check": "latest",
@@ -17,5 +22,8 @@
     "astro": "latest",
     "typescript": "latest"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "ssh2": "^1.17.0",
+    "tar": "^7.5.22"
+  }
 }

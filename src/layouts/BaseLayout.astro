@@ -9,13 +9,15 @@ interface Props {
   description?: string;
   hideHeader?: boolean;
   hideFooter?: boolean;
+  activePath?: string;
 }
 
 const {
   title = 'Java Backend Developer',
-  description = 'Java 后端开发者个人网站，记录系统设计、工程实践、项目作品和技术文章。',
+  description = 'Java 后端开发者个人网站，记录业务项目、踩坑复盘、AI 协作开发与工程实践。',
   hideHeader = false,
-  hideFooter = false
+  hideFooter = false,
+  activePath
 } = Astro.props;
 
 const pageTitle = title.includes('Java Backend') ? title : `${title} | Java Backend Developer`;
@@ -33,11 +35,19 @@ const pageTitle = title.includes('Java Backend') ? title : `${title} | Java Back
     <meta property="og:type" content="website" />
     <link rel="icon" href={withBase('/favicon.svg')} />
     <link rel="alternate" type="application/rss+xml" title="RSS" href={withBase('/rss.xml')} />
+    <script is:inline>
+      (() => {
+        let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        try { const saved = localStorage.getItem('theme'); if (saved === 'light' || saved === 'dark') theme = saved; } catch {}
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
     <title>{pageTitle}</title>
   </head>
   <body>
-    {!hideHeader && <Header />}
-    <main>
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+    {!hideHeader && <Header activePath={activePath} />}
+    <main id="main-content" tabindex="-1">
       <slot />
     </main>
     {!hideFooter && <Footer />}

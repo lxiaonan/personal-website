@@ -36,6 +36,9 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          DEPLOY_SITE_URL: https://lxiaonan.github.io
+          DEPLOY_BASE_PATH: /personal-website
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

@@ -11,11 +11,11 @@ interface Props {
   index?: number;
 }
 
-const { project } = Astro.props;
+const { project, index = 0 } = Astro.props;
 ---
 
 <a class="project-item" href={project.href}>
-  <span class="project-status">{project.status}</span>
+  <span class="project-topline"><span class="project-number">{String(index + 1).padStart(2, '0')}</span><span class="project-status">{project.status}</span><span class="project-arrow" aria-hidden="true">↗</span></span>
   <strong>{project.name}</strong>
   <em>{project.description}</em>
   {
@@ -32,13 +32,14 @@ const { project } = Astro.props;
 
 <style>
   .project-item {
-    display: grid;
-    gap: 10px;
-    min-height: 214px;
-    align-content: start;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+    min-height: 280px;
     border: 1px solid var(--line);
     border-radius: var(--radius);
-    padding: 20px;
+    padding: clamp(22px, 2vw, 30px);
     background: var(--surface);
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03);
     transition:
@@ -53,6 +54,11 @@ const { project } = Astro.props;
     box-shadow: var(--shadow);
   }
 
+  .project-topline { display: flex; gap: 12px; align-items: center; }
+  .project-number { color: var(--faint); font-family: var(--mono); font-size: 0.8rem; }
+  .project-arrow { margin-left: auto; color: var(--faint); }
+  .project-item:hover .project-arrow { color: var(--accent); }
+
   .project-status {
     color: var(--accent);
     font-family: var(--mono);
@@ -63,9 +69,9 @@ const { project } = Astro.props;
 
   strong {
     color: var(--text);
-    font-size: 1.3rem;
+    font-size: clamp(1.3rem, 1.6vw, 1.6rem);
     font-weight: 780;
-    line-height: 1.2;
+    line-height: 1.4;
   }
 
   em {

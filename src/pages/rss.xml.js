@@ -9,7 +9,7 @@ export async function GET(context) {
 
   return rss({
     title: 'Java Backend Developer',
-    description: 'Java 后端、系统设计、工程实践和项目笔记。',
+    description: 'Java 后端、业务项目、踩坑复盘与 AI 协作开发。',
     site: context.site,
     items: posts.map((post) => ({
       title: post.data.title,

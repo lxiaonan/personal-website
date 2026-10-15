@@ -15,7 +15,7 @@ const projects = (await getCollection('projects'))
       <p class="eyebrow">Projects</p>
       <h1 class="section-title">代表项目。</h1>
       <p class="section-copy">
-        基于真实代码与提交记录整理，不照搬 commit 文案，重点说明场景、方案、收益和个人能力。
+        团队业务中的后端实践，与自己从需求推进到交付的 AI 产品。每个案例都写清负责范围、关键取舍和个人能力。
       </p>
       <div class="project-grid">
         {projects.map((project, index) => <ProjectCard project={project} index={index} />)}
@@ -27,12 +27,12 @@ const projects = (await getCollection('projects'))
 <style>
   .project-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
     margin-top: 34px;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 600px) {
     .project-grid {
       grid-template-columns: 1fr;
     }
