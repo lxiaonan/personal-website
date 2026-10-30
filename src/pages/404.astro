@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../utils/path';
+---
+
+<BaseLayout title="页面未找到" noindex>
+  <section class="section">
+    <div class="narrow not-found">
+      <p class="eyebrow">404 / Page not found</p>
+      <h1 class="section-title">这页笔记暂时找不到了。</h1>
+      <p class="section-copy">链接可能已经变更。可以搜索标题或关键词，也可以回到首页重新开始。</p>
+      <div class="button-row">
+        <a class="button primary" href={withBase('/search/')}>搜索本站</a>
+        <a class="button" href={withBase('/')}>返回首页</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>.not-found { padding-block: 64px; } .section-copy { margin-block: 24px; }</style>

@@ -1,0 +1,45 @@
+---
+import { getCollection } from 'astro:content';
+import { articleKind, postSlug, postUrl, readingMinutes } from '../utils/posts';
+
+const selections = [
+  { id: 'pitfall-chat-token-settlement', topic: '成本与状态', hook: '外部成功，本地为什么失败？', reason: '从一个反直觉的失败，读懂计费时间线与产品取舍。' },
+  { id: 'pitfall-csv-quoted-identifiers', topic: '输入边界', hook: '原样传回，数据却变了？', reason: '一个小问题，沿着文件、解析与数据库拆到根因。' },
+  { id: 'ai-video-durable-job-workflow', topic: 'AI 产品工程', hook: '页面关了，任务怎么办？', reason: '从用户动作出发，看任务、积分与素材怎样接起来。' }
+];
+const posts = await getCollection('blog', ({ data }) => !data.draft);
+const reads = selections.flatMap((selection) => {
+  const post = posts.find((post) => postSlug(post.id) === selection.id);
+  return post ? [{ ...selection, post }] : [];
+});
+---
+
+<div class="featured-reads">
+  {reads.map((read, index) => (
+    <a class="featured-read" href={postUrl(read.post.id)}>
+      <div class="read-label"><span>{String(index + 1).padStart(2, '0')}</span>{read.topic}</div>
+      <h3>{read.hook}</h3>
+      <p>{read.reason}</p>
+      <div class="read-foot"><span>{readingMinutes(read.post.body)} 分钟 · {articleKind(read.post.data.kind)}</span><span>打开案例 <span aria-hidden="true">↗</span></span></div>
+    </a>
+  ))}
+</div>
+
+<style>
+  .featured-reads { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-block: 1px solid var(--line-strong); }
+  .featured-read { display: flex; flex-direction: column; padding: 26px 28px; background: var(--surface); transition: background 160ms ease; }
+  .featured-read + .featured-read { border-left: 1px solid var(--line); }
+  .featured-read:hover { background: var(--accent-soft); }
+  .read-label { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 0.78rem; }
+  .read-label > span { color: var(--accent-strong); font: 700 0.75rem var(--mono); }
+  h3 { margin: 16px 0 12px; color: var(--text); font-size: clamp(1.05rem, 1.6vw, 1.35rem); line-height: 1.5; }
+  p { max-width: 340px; margin: 0 0 22px; color: var(--muted); font-size: 0.9rem; line-height: 1.8; }
+  .read-foot { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; justify-content: space-between; margin-top: auto; font-size: 0.76rem; color: var(--faint); }
+  .read-foot > span:last-child { color: var(--accent-strong); font-weight: 700; }
+  @media (max-width: 900px) {
+    .featured-reads { grid-template-columns: 1fr; }
+    .featured-read { padding: 22px 18px; }
+    .featured-read + .featured-read { border-left: 0; border-top: 1px solid var(--line); }
+    p { max-width: none; }
+  }
+</style>

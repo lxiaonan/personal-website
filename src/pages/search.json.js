@@ -1,23 +1,7 @@
-import { getCollection } from 'astro:content';
-import { postUrl } from '../utils/posts';
+import { getSearchEntries } from '../utils/search';
 
 export async function GET() {
-  const posts = await getCollection('blog', ({ data }) => !data.draft);
-
-  return new Response(
-    JSON.stringify(
-      posts.map((post) => ({
-        title: post.data.title,
-        description: post.data.description,
-        tags: post.data.tags,
-        category: post.data.category,
-        url: postUrl(post.id)
-      }))
-    ),
-    {
-      headers: {
-        'content-type': 'application/json; charset=utf-8'
-      }
-    }
-  );
+  return new Response(JSON.stringify(await getSearchEntries()), {
+    headers: { 'content-type': 'application/json; charset=utf-8' }
+  });
 }

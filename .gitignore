@@ -5,3 +5,5 @@ dist/
 .DS_Store
 dev-server.log
 .deploy/
+.playwright-cli/
+output/playwright/

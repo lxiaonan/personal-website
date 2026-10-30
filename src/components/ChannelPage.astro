@@ -54,7 +54,7 @@ const articles = (await getCollection('blog', ({ data }) => !data.draft && data.
   }
   .channel-aside {
     position: sticky;
-    top: 108px;
+    top: var(--header-offset);
     border-top: 2px solid var(--accent);
     padding-top: 20px;
   }

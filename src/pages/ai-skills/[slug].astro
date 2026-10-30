@@ -1,0 +1,94 @@
+---
+import { getCollection, render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CopyCode from '../../components/CopyCode.astro';
+import { skillCategories, skillsReviewedOn } from '../../data/skills';
+import { withBase } from '../../utils/path';
+
+export async function getStaticPaths() {
+  return (await getCollection('skills')).map((skill) => ({ params: { slug: skill.id }, props: { skill } }));
+}
+
+interface Props { skill: CollectionEntry<'skills'> }
+const { skill } = Astro.props;
+const { Content, headings } = await render(skill);
+const source = `https://github.com/${skill.data.repo}/blob/main/${skill.data.sourcePath}`;
+const allSkills = await getCollection('skills');
+const related = allSkills
+  .filter((entry) => skill.data.related.includes(entry.id))
+  .sort((a, b) => skill.data.related.indexOf(a.id) - skill.data.related.indexOf(b.id));
+---
+
+<BaseLayout title={skill.data.title} description={skill.data.description}>
+  <section class="section skill-detail">
+    <div class="container">
+      <a class="back-link" href={withBase('/ai-skills/')}>← AI Skills 使用指南</a>
+      <header class="guide-header">
+        <p class="eyebrow">{skillCategories[skill.data.category]} / {skill.data.repo}</p>
+        <h1>{skill.data.title}</h1>
+        <p class="guide-lead">{skill.data.description}</p>
+        <div class="guide-meta"><span>来源核对 <time datetime={skillsReviewedOn}>{skillsReviewedOn}</time></span><a href={source} target="_blank" rel="noreferrer">原始 SKILL.md ↗</a><a href={`https://github.com/${skill.data.repo}`} target="_blank" rel="noreferrer">作者仓库 ↗</a></div>
+      </header>
+      <div class="guide-layout">
+        <aside class="guide-aside" aria-label="本篇目录">
+          <p class="eyebrow">本篇内容</p>
+          <nav>{headings.filter((heading) => heading.depth === 2).map((heading) => <a href={`#${heading.slug}`}>{heading.text}</a>)}</nav>
+          <a class="aside-back" href={withBase('/ai-skills/#skill-library')}>查看全部 {allSkills.length} 个 Skills →</a>
+        </aside>
+        <div class="guide-main">
+          <div class="guide-summary">
+            <div><span>核心价值</span><p>{skill.data.benefit}</p></div>
+            <div><span>预期产出</span><p>{skill.data.output}</p></div>
+            <div class="install-summary"><span>安装入口 · 依赖与具体选择见下文</span><div data-copy-code><pre><code>{skill.data.install}</code></pre></div></div>
+          </div>
+          <article class="prose skill-prose"><Content /></article>
+          <div class="source-note"><strong>来源与版本说明</strong><p>本文根据 <a href={source}>{skill.data.repo} 的 SKILL.md</a> 及仓库说明作中文整理。示例用于说明用法；安装命令、配套能力与工作流可能随上游变化，请核对当前安装版本。</p></div>
+          {related.length > 0 && <section class="related-guides" aria-labelledby="related-title"><p class="eyebrow">Use them together</p><h2 id="related-title">接下来可以搭配使用</h2><div>{related.map((entry) => <a href={withBase(`/ai-skills/${entry.id}/`)}><strong>{entry.data.name} ↗</strong><span>{entry.data.description}</span></a>)}</div></section>}
+          <a class="button" href={withBase('/ai-skills/')}>← 返回 AI Skills 总览</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <CopyCode />
+</BaseLayout>
+
+<style>
+  .skill-detail { padding-top: 40px; }
+  .back-link { color: var(--muted); font-size: 0.86rem; }
+  .back-link:hover { color: var(--accent-strong); }
+  .guide-header { max-width: 1060px; margin-top: 40px; padding-bottom: 34px; }
+  h1 { margin: 12px 0 20px; font-size: clamp(1.8rem, 3.3vw, 3rem); line-height: 1.45; overflow-wrap: anywhere; }
+  .guide-lead { color: var(--muted); font-size: 1.13rem; max-width: 800px; }
+  .guide-meta { display: flex; flex-wrap: wrap; gap: 10px 24px; margin-top: 24px; font-size: 0.8rem; color: var(--faint); }
+  .guide-meta a { color: var(--accent-strong); }
+  .guide-layout { display: grid; grid-template-columns: 235px minmax(0, 1fr); gap: 64px; align-items: start; border-top: 1px solid var(--line); padding-top: 30px; }
+  .guide-aside { position: sticky; top: var(--header-offset); border-top: 2px solid var(--accent); padding-top: 18px; }
+  .guide-aside nav { display: grid; gap: 11px; }
+  .guide-aside nav a { color: var(--muted); font-size: 0.84rem; }
+  .guide-aside nav a:hover { color: var(--accent-strong); }
+  .aside-back { display: block; margin-top: 24px; border-top: 1px solid var(--line); padding-top: 18px; font-size: 0.8rem; color: var(--accent-strong); }
+  .guide-main { min-width: 0; max-width: 960px; }
+  .guide-summary { display: grid; grid-template-columns: 1fr 1fr; padding: 24px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); gap: 20px 30px; }
+  .guide-summary span { font-size: 0.74rem; font-weight: 700; color: var(--accent-strong); }
+  .guide-summary p { margin: 7px 0 0; font-size: 0.93rem; color: var(--body-copy); }
+  .install-summary { grid-column: 1 / -1; min-width: 0; }
+  .install-summary pre { overflow-x: auto; margin: 10px 0 0; border-radius: 7px; padding: 44px 16px 16px; color: #edf2ff; background: #0b1020; }
+  .install-summary code { font-family: var(--mono); font-size: 0.83rem; }
+  .skill-prose { padding-top: 1px; }
+  .skill-prose :global(h2) { font-size: clamp(1.35rem, 2.1vw, 1.75rem); line-height: 1.5; }
+  .skill-prose :global(h3) { line-height: 1.5; }
+  .skill-prose :global(pre) { font-size: 0.88rem; }
+  .source-note { margin-top: 40px; padding: 22px; border-left: 3px solid var(--accent); background: var(--surface-soft); color: var(--muted); font-size: 0.87rem; }
+  .source-note p { margin-bottom: 0; }
+  .source-note a { color: var(--accent-strong); text-decoration: underline; }
+  .related-guides { margin: 44px 0 30px; }
+  .related-guides h2 { font-size: 1.3rem; }
+  .related-guides > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .related-guides a { min-width: 0; display: block; border-top: 1px solid var(--line-strong); padding-top: 15px; }
+  .related-guides strong { display: block; font-family: var(--mono); font-size: 0.86rem; overflow-wrap: anywhere; color: var(--accent-strong); }
+  .related-guides span { display: block; margin-top: 8px; font-size: 0.84rem; color: var(--muted); }
+  @media (max-width: 1060px) { .guide-layout { grid-template-columns: 200px minmax(0, 1fr); gap: 32px; } }
+  @media (max-width: 900px) { .guide-layout { grid-template-columns: 1fr; } .guide-aside { position: static; } .guide-aside nav { display: flex; flex-wrap: wrap; gap: 8px 16px; } .aside-back { display: none; } }
+  @media (max-width: 520px) { .guide-header { margin-top: 28px; } .guide-summary { grid-template-columns: 1fr; padding: 18px; } .related-guides > div { grid-template-columns: 1fr; gap: 22px; } }
+</style>

@@ -13,6 +13,7 @@
   --accent-soft: #eaf0fc;
   --success: #0f766e;
   --radius: 10px;
+  --header-offset: 108px;
   --content: min(1440px, calc(100% - clamp(40px, 8vw, 128px)));
   --content-narrow: min(880px, calc(100% - 40px));
   --shadow: 0 18px 48px rgba(15, 23, 42, 0.08);
@@ -48,6 +49,10 @@
 * {
   box-sizing: border-box;
 }
+
+[hidden] { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@media (max-width: 1100px) { :root { --header-offset: 148px; } }
 
 html {
   background: var(--bg);
@@ -88,7 +93,7 @@ input {
 }
 
 .section[id] {
-  scroll-margin-top: 80px;
+  scroll-margin-top: var(--header-offset);
 }
 
 .rule {
@@ -111,7 +116,7 @@ input {
   font-size: clamp(1.8rem, 3.7vw, 3.05rem);
   font-weight: 790;
   letter-spacing: 0;
-  line-height: 1.12;
+  line-height: 1.35;
 }
 
 .section-copy {
@@ -155,11 +160,11 @@ input {
 .button.primary {
   border-color: var(--accent-strong);
   background: var(--accent-strong);
-  color: #fff;
+  color: var(--bg);
 }
 
 .button.primary:hover {
-  color: #fff;
+  color: var(--bg);
   background: var(--accent);
 }
 
@@ -207,7 +212,7 @@ input {
 .prose h3 {
   color: var(--text);
   letter-spacing: 0;
-  line-height: 1.18;
+  line-height: 1.45;
 }
 
 .prose h1 {
@@ -300,21 +305,14 @@ input {
   }
 }
 
-@media (max-width: 900px) {
-  .section[id] {
-    scroll-margin-top: 180px;
-  }
-}
-
 main { min-height: calc(100vh - 180px); }
 ::selection { background: var(--accent-soft); color: var(--accent-strong); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
 .skip-link { position: fixed; top: 12px; left: 18px; z-index: 100; padding: 10px 16px; border-radius: 8px; background: var(--surface); color: var(--accent-strong); transform: translateY(-160%); }
 .skip-link:focus { transform: translateY(0); }
 .prose img { display: block; max-width: 100%; height: auto; border-radius: var(--radius); }
-.prose h2, .prose h3 { scroll-margin-top: 110px; }
+.prose h2, .prose h3 { scroll-margin-top: var(--header-offset); }
 .prose ul, .prose ol { padding-left: 1.5em; }
 .prose li + li { margin-top: 0.4em; }
 .prose blockquote { margin-inline: 0; border-left: 3px solid var(--accent); padding: 12px 22px; background: var(--surface-soft); }
-@media (max-width: 900px) { .prose h2, .prose h3 { scroll-margin-top: 180px; } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }

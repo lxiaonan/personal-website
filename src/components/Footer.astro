@@ -11,7 +11,8 @@ const year = new Date().getFullYear();
       <a href={withBase('/rss.xml')}>RSS</a>
       <a href={profile.github}>GitHub</a>
       <a href={profile.csdn}>CSDN</a>
-      <a href={profile.linuxdo}>Linux.do</a>
+      {profile.linuxdo && <a href={profile.linuxdo}>Linux.do</a>}
+      <a href={withBase('/search/')}>站内搜索</a>
     </div>
   </div>
 </footer>

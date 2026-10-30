@@ -3,11 +3,12 @@ export const profile = {
   handle: 'Java Backend Developer',
   location: 'China',
   intro:
-    '参与广告投放、批创与 BI 平台建设，也在做自己的 AI 创作平台。大量使用 AI 完成代码实现，把精力放在业务拆解、技术取舍、问题定位和交付验证。',
-  email: 'hello [at] your-domain.com',
+    'Java 后端开发，参与媒体花费采集、批量投放、BI 路径分析、资产迁移和报表导出；维护个人 AI 网站的模型接入、积分结算与视频任务。开发中使用 AI 辅助，记录具体实现、修复和验证范围。',
+  // Leave optional contact fields empty until real public details are available.
+  email: '',
   github: 'https://github.com/lxiaonan',
   csdn: 'https://blog.csdn.net/m0_62780474?type=blog',
-  linuxdo: 'https://linux.do/u/yourname',
+  linuxdo: '',
   resume: ''
 };
 
@@ -17,6 +18,7 @@ export const navItems = [
   { href: '/projects/', label: '项目' },
   { href: '/pitfalls/', label: '踩过的小坑' },
   { href: '/ai-development/', label: 'AI 开发总结' },
+  { href: '/ai-skills/', label: 'AI Skills' },
   { href: '/about/', label: '关于' }
 ];
 
@@ -39,46 +41,46 @@ export const experiences = [
   {
     year: '2026.07 起',
     title: '个人 AI 创作平台',
-    detail: '从模型接入扩展到积分计费、异步生成任务、漫剧工作流与部署维护，实践 AI 辅助的全流程交付。'
+    detail: '维护模型配置、聊天 Token 预扣结算、持久化视频任务、任务中心及漫剧预检，修复审计和浏览器存储问题。'
   },
   {
     year: '2026',
     title: 'BI 分析与数据治理',
-    detail: '参与路径与属性分析、标签分群、资产迁移、埋点数据验收和跨平台事件差异告警。'
+    detail: '参与路径分析与节点下钻、完整结果分群、资产箱依赖迁移、埋点验收、事件条数比较和飞书表格导出。'
   },
   {
     year: '2025 — 2026',
     title: '广告平台与批量工作流',
-    detail: '参与多媒体渠道鉴权、花费采集、素材关系维护及快手、B站、广点通等批创链路。'
+    detail: '参与百度 SEM、华为商店等渠道花费采集及 B站素材关系维护；实现和维护快手、B站、广点通批创。'
   }
 ];
 
 export const capabilities = [
   {
     number: '01',
-    title: '把业务拆成可交付的流程',
-    detail: '将批量投放拆成预览、提交、结果追踪与失败重提，明确每一步的输入、状态和恢复入口。',
+    title: '批创预览与逐层提交',
+    detail: '模板生成本地草稿，提交时按媒体对象层级创建，回写媒体 ID、成功标记和错误原因，维护重提入口。',
     project: '批创平台',
     href: '/projects/batch-creation-platform/'
   },
   {
     number: '02',
-    title: '理解数据语义与依赖',
-    detail: '从页面分析配置到 SQL 规划，再到资产迁移中的依赖顺序、冲突复用与目标 ID 重映射。',
+    title: '路径查询与资产迁移',
+    detail: '路径下钻保存完整用户集合；资产箱区分复用与跳过，按依赖顺序导入并映射目标引用。',
     project: '数数 BI 平台',
     href: '/projects/bi-analytics-platform/'
   },
   {
     number: '03',
-    title: '处理外部系统的不确定性',
-    detail: '识别授权失效、接口限流、金额单位和局部失败，让采集与补跑有清楚的边界。',
+    title: '媒体花费与素材关系',
+    detail: '核对账号、日期与金额单位；B站创意详情查询对限流和 IO 异常有限重试，并记录跳过的批次。',
     project: '广告投放平台',
     href: '/projects/ad-platform/'
   },
   {
     number: '04',
-    title: '让 AI 实现接受工程验证',
-    detail: '约束模型参数、积分结算与异步任务状态，结合测试和浏览器验收，把修复沉淀成下一次的规范。',
+    title: '积分结算与视频任务',
+    detail: '聊天按 usage 结算且不超过预扣；视频任务落库并分开提交、轮询，核对退款、租约和任务归属。',
     project: '个人 AI 创作平台',
     href: '/projects/ai-tool-platform/'
   }

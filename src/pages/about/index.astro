@@ -11,28 +11,28 @@ import { withBase } from '../../utils/path';
         <p class="eyebrow">About</p>
         <h1 class="section-title">你好，我是{profile.name}。</h1>
         <p>
-          我是一名 Java 后端开发者，参与广告投放、批创和 BI 平台建设，也在迭代自己的 AI 创作平台。
-          平时大量使用 AI 生成和修改代码，我把主要精力放在理解业务、拆解流程、约束方案和验证结果上。
+          我是一名 Java 后端开发者。团队项目中参与媒体花费采集、批创预览与提交、BI 路径分析、资产箱迁移和报表导出；
+          个人项目维护 AI 模型接入、聊天积分结算和持久化视频任务。
         </p>
         <p>
-          这个网站记录具体做过什么、踩过什么坑，以及如何把一次修复变成下一次开发的检查点。
-          项目页说明负责范围，踩坑笔记保留排查细节，AI 开发总结记录协作方法。
+          开发中大量使用 AI 生成和修改代码，我负责需求与规则梳理、实现检查及问题修复。
+          项目页按个人提交记录具体工作，笔记说明问题、处理过程与验证范围；方案推演另行标注。
         </p>
         <div class="button-row">
           {profile.resume && <a class="button primary" href={withBase(profile.resume)}>下载简历</a>}
           <a class="button" href={profile.github}>GitHub</a>
           <a class="button" href={profile.csdn}>CSDN</a>
-          <a class="button" href={profile.linuxdo}>Linux.do</a>
+          {profile.linuxdo && <a class="button" href={profile.linuxdo}>Linux.do</a>}
         </div>
       </div>
 
       <aside class="contact-card">
         <h2>Contact</h2>
         <dl>
-          <div>
+          {profile.email && <div>
             <dt>Email</dt>
             <dd><a href={`mailto:${profile.email}`}>{profile.email}</a></dd>
-          </div>
+          </div>}
           <div>
             <dt>Location</dt>
             <dd>{profile.location}</dd>
@@ -49,7 +49,7 @@ import { withBase } from '../../utils/path';
   <section class="section">
     <div class="container">
       <p class="eyebrow">Capability</p>
-      <h2 class="section-title">能力拼图。</h2>
+      <h2 class="section-title">使用的技术</h2>
       <div class="capability-grid">
         {
           stackGroups.map((group) => (
@@ -68,7 +68,7 @@ import { withBase } from '../../utils/path';
   <section class="section">
     <div class="container">
       <p class="eyebrow">Timeline</p>
-      <h2 class="section-title">经历摘要。</h2>
+      <h2 class="section-title">工作事项摘要</h2>
       <div class="timeline-list">
         {
           experiences.map((item) => (

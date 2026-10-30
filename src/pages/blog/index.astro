@@ -30,7 +30,7 @@ const tagKey = (tag: string) => tag.trim().toLowerCase();
           <p class="eyebrow">Backend Field Notes</p>
           <h1 class="section-title">从业务系统里拆出来的开发实践。</h1>
           <p class="section-copy">
-            围绕广告平台、批创流程、BI 查询链路和 AI Agent 接入，记录我在 Java 后端开发中遇到的真实问题、取舍和复盘。
+            围绕广告平台、批创流程、BI 查询链路和 AI Agent 接入，用背景、目标、行动、结果拆解后端方案。技术文章以方案推演为主，带提交依据的修复记录见「踩过的小坑」与「AI 开发总结」。
           </p>
         </div>
       </div>
@@ -46,7 +46,7 @@ const tagKey = (tag: string) => tag.trim().toLowerCase();
           <div class="source-panel">
             <a href={profile.github}>GitHub</a>
             <a href={profile.csdn}>CSDN</a>
-            <a href={profile.linuxdo}>Linux.do</a>
+            {profile.linuxdo && <a href={profile.linuxdo}>Linux.do</a>}
           </div>
         </div>
 
@@ -130,7 +130,7 @@ const tagKey = (tag: string) => tag.trim().toLowerCase();
 
   .blog-aside {
     position: sticky;
-    top: 108px;
+    top: var(--header-offset);
     border-top: 2px solid var(--accent);
     padding-top: 20px;
   }

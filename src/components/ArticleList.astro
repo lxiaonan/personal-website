@@ -1,13 +1,15 @@
 ---
-import { postUrl } from '../utils/posts';
+import { articleKind, postUrl, readingMinutes } from '../utils/posts';
 
 interface Article {
   id: string;
+  body?: string;
   data: {
     title: string;
     description: string;
     pubDate: Date;
     tags: string[];
+    kind: 'case-study' | 'design-note';
   };
 }
 
@@ -22,7 +24,7 @@ const tagKey = (tag: string) => tag.trim().toLowerCase();
 
 <div class="article-list">
   {
-    articles.map((article, index) => (
+    articles.map((article) => (
       <a
         class="article-item"
         href={postUrl(article.id)}
@@ -38,7 +40,8 @@ const tagKey = (tag: string) => tag.trim().toLowerCase();
           <em>{article.data.description}</em>
           <span class="article-meta">
             <time datetime={article.data.pubDate.toISOString()}>{formatter.format(article.data.pubDate)}</time>
-            <span>{String(index + 1).padStart(2, '0')}</span>
+            <span class="article-kind">{articleKind(article.data.kind)}</span>
+            <span>{readingMinutes(article.body)} 分钟</span>
             <span class="article-tags">
               {article.data.tags.slice(0, 3).map((tag) => <i>{tag}</i>)}
             </span>
@@ -137,10 +140,7 @@ const tagKey = (tag: string) => tag.trim().toLowerCase();
     text-transform: uppercase;
   }
 
-  .article-meta > span:not(.article-tags)::before {
-    content: '#';
-    opacity: 0.6;
-  }
+  .article-kind { color: var(--accent-strong); font-family: inherit; }
 
   .article-tags {
     display: flex;

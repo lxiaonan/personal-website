@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import CopyCode from '../../components/CopyCode.astro';
 import { projectSlug } from '../../utils/projects';
 import { withBase } from '../../utils/path';
 import ArticleList from '../../components/ArticleList.astro';
@@ -42,16 +43,16 @@ const relatedNotes = (await getCollection('blog', ({ data }) => !data.draft && d
         </ul>
         {project.data.skills.length > 0 && (
           <div class="skills-panel">
-            <p class="eyebrow">What I bring</p>
-            <h2>个人能力</h2>
+            <p class="eyebrow">Work areas</p>
+            <h2>涉及事项</h2>
             <ul>{project.data.skills.map((skill) => <li>{skill}</li>)}</ul>
           </div>
         )}
       </aside>
 
       <div class="project-body">
-        <section class="impact-panel" aria-label="交付能力">
-          <p class="eyebrow">Delivered</p>
+        <section class="impact-panel" aria-label="主要工作">
+          <p class="eyebrow">主要工作</p>
           <ul>
             {project.data.metrics.map((metric) => <li>{metric}</li>)}
           </ul>
@@ -69,6 +70,7 @@ const relatedNotes = (await getCollection('blog', ({ data }) => !data.draft && d
       </div>
     </div>
   </article>
+  <CopyCode />
 </BaseLayout>
 
 <style>
@@ -81,8 +83,8 @@ const relatedNotes = (await getCollection('blog', ({ data }) => !data.draft && d
 
   .project-rail {
     position: sticky;
-    top: 108px;
-    max-height: calc(100vh - 132px);
+    top: var(--header-offset);
+    max-height: calc(100dvh - var(--header-offset) - 24px);
     overflow-y: auto;
     scrollbar-width: thin;
     padding-right: 6px;

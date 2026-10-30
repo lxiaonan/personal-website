@@ -7,6 +7,14 @@ const blog = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
+    kind: z.enum(['case-study', 'design-note']).default('design-note'),
+    star: z.object({
+      situation: z.string().min(1),
+      task: z.string().min(1),
+      action: z.string().min(1),
+      result: z.string().min(1)
+    }).optional(),
+    takeaways: z.array(z.string().min(1)).max(3).default([]),
     pubDate: z.date(),
     updatedDate: z.date().optional(),
     category: z.enum(['article', 'pitfall', 'ai-development']).default('article'),
@@ -31,4 +39,21 @@ const projects = defineCollection({
   })
 });
 
-export const collections = { blog, projects };
+const skills = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/skills' }),
+  schema: z.object({
+    name: z.string(),
+    title: z.string(),
+    description: z.string(),
+    category: z.enum(['discovery', 'planning', 'engineering', 'video']),
+    repo: z.string(),
+    sourcePath: z.string(),
+    install: z.string(),
+    benefit: z.string(),
+    output: z.string(),
+    order: z.number(),
+    related: z.array(z.string()).default([])
+  })
+});
+
+export const collections = { blog, projects, skills };

@@ -1,0 +1,124 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getSearchEntries, searchCategories } from '../../utils/search';
+
+const entries = await getSearchEntries();
+---
+
+<BaseLayout title="站内搜索" description="搜索 Java 后端文章、项目案例、踩坑记录和 AI Skills 使用指南。">
+  <section class="section search-page">
+    <div class="container search-container">
+      <header class="search-heading">
+        <p class="eyebrow">Find a field note</p>
+        <h1 class="section-title">找到你关心的那个问题。</h1>
+        <p class="section-copy">按标题、摘要和标签查找文章、项目与 Skills。试试 Redis、积分结算，或 TDD。</p>
+      </header>
+      <form class="search-form" role="search" data-search-form hidden>
+        <label for="site-query">搜索本站</label>
+        <div class="query-row">
+          <input id="site-query" name="q" type="search" placeholder="输入关键词，多个词用空格分开" autocomplete="off" aria-controls="search-results" />
+          <button type="submit" class="button primary">搜索</button>
+        </div>
+        <div class="category-filters" aria-label="按内容类型筛选">
+          <button type="button" data-category="all" aria-pressed="true">全部 <span>{entries.length}</span></button>
+          {Object.entries(searchCategories).map(([key, label]) => (
+            <button type="button" data-category={key} aria-pressed="false">{label} <span>{entries.filter((entry) => entry.category === key).length}</span></button>
+          ))}
+        </div>
+      </form>
+      <noscript><p class="section-copy">启用 JavaScript 可搜索和筛选；你也可以直接浏览下面的全部内容。</p></noscript>
+      <p class="search-count" data-search-count role="status" aria-live="polite" aria-atomic="true">共 {entries.length} 条内容</p>
+      <ul id="search-results" class="search-results">
+        {entries.map((entry) => (
+          <li data-search-entry data-category={entry.category} data-search={`${entry.title} ${entry.description} ${entry.tags.join(' ')}`.normalize('NFKC').toLowerCase()}>
+            <a href={entry.url}>
+              <span class="result-category">{searchCategories[entry.category]}</span>
+              <h2>{entry.title}<span aria-hidden="true">↗</span></h2>
+              <p>{entry.description}</p>
+              <div class="result-tags">{entry.tags.slice(0, 5).map((tag) => <span>{tag}</span>)}</div>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <div class="search-empty" data-search-empty hidden>
+        <h2>还没有找到相关内容。</h2>
+        <p>试试更短的关键词，或者清除分类限制。</p>
+        <button class="button" type="button" data-search-reset>清除筛选，查看全部</button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-search-form]')!;
+  const input = document.querySelector<HTMLInputElement>('#site-query')!;
+  const entries = Array.from(document.querySelectorAll<HTMLElement>('[data-search-entry]'));
+  const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('.category-filters button'));
+  const count = document.querySelector<HTMLElement>('[data-search-count]')!;
+  const empty = document.querySelector<HTMLElement>('[data-search-empty]')!;
+  let category = 'all';
+
+  function update(save = true) {
+    const terms = input.value.normalize('NFKC').trim().toLowerCase().split(/\s+/).filter(Boolean);
+    let visible = 0;
+    entries.forEach((entry) => {
+      const matches = (category === 'all' || entry.dataset.category === category)
+        && terms.every((term) => entry.dataset.search?.includes(term));
+      entry.hidden = !matches;
+      if (matches) visible++;
+    });
+    buttons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.category === category)));
+    count.textContent = `找到 ${visible} 条内容，共 ${entries.length} 条`;
+    empty.hidden = visible > 0;
+    if (save) {
+      const url = new URL(window.location.href);
+      input.value.trim() ? url.searchParams.set('q', input.value.trim()) : url.searchParams.delete('q');
+      category === 'all' ? url.searchParams.delete('category') : url.searchParams.set('category', category);
+      window.history.replaceState(null, '', url);
+    }
+  }
+
+  function restore() {
+    const params = new URLSearchParams(window.location.search);
+    input.value = params.get('q') ?? '';
+    const requested = params.get('category');
+    category = buttons.some((button) => button.dataset.category === requested) ? requested! : 'all';
+    update(false);
+  }
+  form.hidden = false;
+  restore();
+  input.addEventListener('input', () => update());
+  form.addEventListener('submit', (event) => { event.preventDefault(); update(); });
+  buttons.forEach((button) => button.addEventListener('click', () => { category = button.dataset.category!; update(); }));
+  document.querySelector('[data-search-reset]')?.addEventListener('click', () => {
+    input.value = ''; category = 'all'; update(); input.focus();
+  });
+  window.addEventListener('popstate', restore);
+</script>
+
+<style>
+  .search-container { max-width: 1040px; }
+  .search-heading { max-width: 780px; margin-bottom: 30px; }
+  .search-heading h1 { font-size: clamp(1.8rem, 3.4vw, 2.7rem); line-height: 1.4; }
+  .search-form { padding: 24px; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--surface); }
+  .search-form > label { display: block; margin-bottom: 10px; color: var(--muted); font-size: 0.85rem; font-weight: 700; }
+  .query-row { display: flex; gap: 12px; }
+  input { min-width: 0; flex: 1; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--text); background: var(--bg); }
+  .category-filters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .category-filters button { min-height: 44px; border: 1px solid var(--line); border-radius: 7px; padding: 8px 12px; background: var(--surface); color: var(--muted); cursor: pointer; font-size: 0.85rem; }
+  .category-filters button[aria-pressed='true'] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); }
+  .category-filters span { margin-left: 6px; font: 0.75rem var(--mono); }
+  .search-count { margin-block: 26px 12px; color: var(--faint); font-size: 0.85rem; }
+  .search-results { list-style: none; padding: 0; margin: 0; }
+  .search-results li { border-top: 1px solid var(--line); }
+  .search-results a { display: block; padding: 25px 12px; border-radius: 6px; }
+  .search-results a:hover { background: var(--surface); }
+  .result-category { color: var(--accent-strong); font-size: 0.76rem; }
+  h2 { margin: 9px 0; font-size: 1.18rem; line-height: 1.6; }
+  h2 span { margin-left: 12px; color: var(--accent); }
+  .search-results p { margin: 0 0 14px; color: var(--muted); font-size: 0.94rem; }
+  .result-tags { display: flex; flex-wrap: wrap; gap: 8px 16px; color: var(--faint); font-size: 0.75rem; }
+  .search-empty { padding: 36px 24px; border: 1px dashed var(--line-strong); border-radius: var(--radius); text-align: center; }
+  .search-empty p { color: var(--muted); }
+  @media (max-width: 520px) { .search-form { padding: 18px; } .query-row { gap: 8px; } input { padding-inline: 10px; } }
+</style>

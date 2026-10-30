@@ -57,6 +57,8 @@ test('首次 HTTP 配置可服务页面和 ACME 校验，保留 Nginx URI 变量
   assert.match(stdout, /root \/var\/www\/yunan\.aiutil\.cloud\/current;/);
   assert.match(stdout, /try_files \$uri \$uri\/ =404;/);
   assert.doesNotMatch(stdout, /ssl_certificate|return 301/);
+  assert.match(stdout, /error_page 404 \/404\.html;/);
+  assert.match(stdout, /location = \/404\.html \{\s*internal;/);
 });
 
 test('HTTPS 配置保留独立 HTTP 验证路径，并重定向普通请求', { skip: !bash }, async () => {
@@ -68,6 +70,7 @@ test('HTTPS 配置保留独立 HTTP 验证路径，并重定向普通请求', { 
   assert.match(stdout, /location \^~ \/\.well-known\/acme-challenge\/ \{[^}]+try_files \$uri =404;/s);
   assert.match(stdout, /max-age=31536000, immutable/);
   assert.match(stdout, /Cache-Control "no-cache" always/);
+  assert.match(stdout, /error_page 404 \/404\.html;/);
 });
 
 test('配置渲染模式拒绝非法输入，且不进入服务器安装', { skip: !bash }, async () => {

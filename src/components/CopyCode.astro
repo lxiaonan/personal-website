@@ -1,0 +1,43 @@
+<script>
+  document.querySelectorAll('.prose pre').forEach((pre) => {
+    if (pre.closest('[data-copy-code]')) return;
+    const wrapper = document.createElement('div');
+    wrapper.setAttribute('data-copy-code', '');
+    pre.before(wrapper);
+    wrapper.append(pre);
+  });
+  document.querySelectorAll<HTMLElement>('[data-copy-code]').forEach((block) => {
+    if (block.querySelector('.copy-code')) return;
+    const code = block.querySelector('code');
+    if (!code) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'copy-code';
+    button.textContent = '复制';
+    button.setAttribute('aria-label', '复制代码');
+    const status = document.createElement('span');
+    status.className = 'sr-only';
+    status.setAttribute('role', 'status');
+    block.append(status);
+    let resetTimer: number;
+    button.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(code.textContent ?? '');
+        button.textContent = '已复制';
+      } catch {
+        button.textContent = '请手动选择复制';
+      }
+      status.textContent = button.textContent;
+      window.clearTimeout(resetTimer);
+      resetTimer = window.setTimeout(() => { button.textContent = '复制'; status.textContent = ''; }, 2200);
+    });
+    block.prepend(button);
+  });
+</script>
+
+<style is:global>
+  [data-copy-code] { position: relative; }
+  [data-copy-code] pre { padding-top: 44px; }
+  .copy-code { position: absolute; top: 9px; right: 10px; z-index: 1; border: 1px solid #64748b; border-radius: 5px; background: #182235; color: #edf2ff; padding: 4px 10px; font-size: 0.76rem; cursor: pointer; }
+  .copy-code:hover { background: #334155; }
+</style>

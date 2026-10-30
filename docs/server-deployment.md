@@ -81,7 +81,13 @@ npm run deploy:prepare
 
 第一条检查配置、Shell 参数转义及 HTTP/HTTPS 模板（模板测试需要 Bash）。第二条执行 Astro 检查、构建与打包，不连接服务器、不提示密码。真正部署需要服务器密码和公网 ACME 校验通过后才能确认成功。
 
-## GitHub Pages 兼容
+## 自定义 404 页面（2026-10-26）
+
+站点现生成 `dist/404.html`，提供返回首页和站内搜索入口。Nginx 模板增加 `error_page 404 /404.html` 和内部错误页位置，缺失地址仍返回 HTTP 404。
+
+已部署的服务器需要通过一次完整部署更新 Nginx 配置；仅执行 `deploy:update` 不会修改配置，因此不会自动启用错误页映射。此次只完成本地构建、模板与脚本检查，未更新服务器。GitHub Pages 会直接使用发布目录中的 `404.html`。
+
+## GitHub Pages 子路径配置
 
 默认构建面向 https://yunan.aiutil.cloud/ 的根路径。原 GitHub Pages 手动工作流显式设置 DEPLOY_SITE_URL 和 DEPLOY_BASE_PATH，仍可构建 /personal-website 子路径版本。
 

@@ -1,7 +1,8 @@
 ---
 import { getCollection, getEntry, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { postSlug } from '../../utils/posts';
+import CopyCode from '../../components/CopyCode.astro';
+import { articleKind, postSlug, postUrl, readingMinutes } from '../../utils/posts';
 import { withBase } from '../../utils/path';
 import { projectUrl } from '../../utils/projects';
 import { channels } from '../../data/channels';
@@ -16,8 +17,27 @@ const { Content, headings } = await render(post);
 const channel = channels[post.data.category];
 const relatedProject = post.data.project ? await getEntry(post.data.project) : undefined;
 const formatter = new Intl.DateTimeFormat('zh-CN', { dateStyle: 'long' });
-const wordCount = post.body?.length ?? post.data.description.length;
-const readingMinutes = Math.max(1, Math.ceil(wordCount / 360));
+const minutes = readingMinutes(post.body);
+const starSections = post.data.star ? [
+  { letter: 'S', label: '背景', text: post.data.star.situation },
+  { letter: 'T', label: '目标', text: post.data.star.task },
+  { letter: 'A', label: '行动', text: post.data.star.action },
+  { letter: 'R', label: '结果', text: post.data.star.result }
+].map((section) => ({
+  ...section,
+  heading: headings.find((heading) => heading.depth === 2 && heading.text.startsWith(section.letter + ' ·'))
+})) : [];
+const relatedPosts = (await getCollection('blog', ({ data }) => !data.draft))
+  .filter((candidate) => candidate.id !== post.id)
+  .map((candidate) => {
+    const sameProject = Boolean(post.data.project && candidate.data.project?.id === post.data.project.id);
+    const sharedTags = candidate.data.tags.filter((tag) => post.data.tags.includes(tag));
+    const score = (sameProject ? 6 : 0) + sharedTags.length * 3 + (candidate.data.category === post.data.category ? 1 : 0);
+    return { post: candidate, score, reason: sameProject ? '同一项目，继续看另一处边界' : sharedTags.length ? '继续了解 ' + sharedTags[0] : '同栏目，换一个问题继续读' };
+  })
+  .filter((candidate) => candidate.score > 0)
+  .sort((a, b) => b.score - a.score || b.post.data.pubDate.valueOf() - a.post.data.pubDate.valueOf())
+  .slice(0, 2);
 const glossaryTerms = [
   ['幂等', '同一业务动作重复执行多次，最终业务结果保持一致。重点不是拦请求，而是让重试、补偿和并发都能回到同一个结果。'],
   ['MCP', 'Model Context Protocol，用标准协议把模型连接到外部工具和数据源。后端接入时要按开放 API 的标准做权限、审计和限流。'],
@@ -43,23 +63,64 @@ const glossaryTerms = [
 ];
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description} activePath={channel.href}>
+<BaseLayout title={post.data.title} description={post.data.description} activePath={channel.href} type="article" publishedTime={post.data.pubDate} modifiedTime={post.data.updatedDate}>
   <article class="section article-section">
     <div class="container article-layout">
       <a class="back-link" href={withBase(channel.href)}><span aria-hidden="true">←</span> 返回{channel.label}</a>
       <header class="article-header">
-        <p class="eyebrow">{channel.eyebrow}</p>
+        <p class="eyebrow">{channel.label} <span aria-hidden="true"> / </span> {articleKind(post.data.kind)}</p>
         <h1>{post.data.title}</h1>
         <p class="article-description">{post.data.description}</p>
         <div class="article-meta">
           <time datetime={post.data.pubDate.toISOString()}>{formatter.format(post.data.pubDate)}</time>
-          <span class="reading-time">约 {readingMinutes} 分钟阅读</span>
+          <span class="reading-time">约 {minutes} 分钟阅读</span>
+          {post.data.updatedDate && <span>更新于 <time datetime={post.data.updatedDate.toISOString()}>{formatter.format(post.data.updatedDate)}</time></span>}
           <ul class="chip-list">{post.data.tags.map((tag) => <li class="chip">{tag}</li>)}</ul>
           {relatedProject && <a class="related-project" href={projectUrl(relatedProject.id)}>{relatedProject.data.title} ↗</a>}
         </div>
       </header>
       <div class:list={['article-content', { 'without-toc': headings.length === 0 }]}>
-        <div class="prose"><Content /></div>
+        <div class="reading-column">
+          {starSections.length > 0 && (
+            <section class="article-brief" aria-labelledby="brief-title">
+              <div class="brief-head">
+                <h2 id="brief-title">30 秒读懂这篇</h2>
+                <span>STAR 阅读地图</span>
+              </div>
+              <div class="brief-grid">
+                {starSections.map((section) => (
+                  <a class="brief-step" href={section.heading ? '#' + section.heading.slug : '#article-body'}>
+                    <span class="step-letter" aria-hidden="true">{section.letter}</span>
+                    <div><strong>{section.label}</strong><p>{section.text}</p></div>
+                  </a>
+                ))}
+              </div>
+              {post.data.takeaways.length > 0 && (
+                <div class="article-takeaways">
+                  <strong>读完可以</strong>
+                  <ul>{post.data.takeaways.map((takeaway) => <li>{takeaway}</li>)}</ul>
+                </div>
+              )}
+            </section>
+          )}
+          <div class="prose" id="article-body"><Content /></div>
+          {relatedPosts.length > 0 && (
+            <section class="continue-reading" aria-labelledby="continue-title">
+              <p class="eyebrow">继续阅读</p>
+              <h2 id="continue-title">把这个问题再往下拆一步。</h2>
+              <div class="related-grid">
+                {relatedPosts.map(({ post: candidate, reason }) => (
+                  <a href={postUrl(candidate.id)}>
+                    <span class="related-reason">{reason}</span>
+                    <h3>{candidate.data.title}</h3>
+                    <p>{candidate.data.description}</p>
+                    <span class="related-meta">{articleKind(candidate.data.kind)} · {readingMinutes(candidate.body)} 分钟 <span aria-hidden="true">↗</span></span>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
         {headings.length > 0 && (
           <aside class="toc-rail">
             <details class="toc" open>
@@ -74,6 +135,7 @@ const glossaryTerms = [
       </div>
     </div>
   </article>
+  <CopyCode />
 </BaseLayout>
 
 <script>
@@ -85,7 +147,7 @@ const glossaryTerms = [
   const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('.toc nav a'));
   const sections = links.map((link) => document.getElementById(decodeURIComponent(link.hash.slice(1)))).filter((section): section is HTMLElement => section !== null);
   function updateCurrentSection() {
-    const offset = mobile.matches ? 190 : 120;
+    const offset = (document.querySelector('.site-header')?.getBoundingClientRect().height ?? 76) + 24;
     let current = sections[0];
     for (const section of sections) { if (section.getBoundingClientRect().top <= offset) current = section; }
     for (const link of links) {
@@ -191,8 +253,38 @@ const glossaryTerms = [
 </script>
 
 <style>
+  .reading-column { min-width: 0; }
+  .article-brief { margin-bottom: 32px; border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 22px 24px; background: var(--surface); }
+  .brief-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px; padding-bottom: 18px; }
+  .brief-head h2 { margin: 0; font-size: 1rem; }
+  .brief-head > span { color: var(--faint); font-size: 0.73rem; font-family: var(--mono); }
+  .brief-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 24px; }
+  .brief-step { display: grid; grid-template-columns: 26px minmax(0, 1fr); align-items: start; gap: 10px; border-radius: 4px; }
+  .step-letter { display: grid; place-items: center; width: 26px; height: 26px; background: var(--accent-soft); color: var(--accent-strong); font: 700 0.8rem var(--mono); border-radius: 4px; }
+  .brief-step strong { font-size: 0.83rem; }
+  .brief-step p { margin: 4px 0 0; color: var(--muted); font-size: 0.86rem; line-height: 1.75; }
+  .brief-step:hover strong { color: var(--accent-strong); text-decoration: underline; text-underline-offset: 4px; }
+  .article-takeaways { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 0.83rem; }
+  .article-takeaways > strong { color: var(--success); }
+  .article-takeaways ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); }
+  .article-takeaways li + li { margin-top: 3px; }
+  .continue-reading { margin-top: 52px; padding-top: 28px; border-top: 1px solid var(--line-strong); }
+  .continue-reading > h2 { margin: 0 0 22px; font-size: 1.3rem; line-height: 1.5; }
+  .related-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .related-grid > a { border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; background: var(--surface); }
+  .related-grid > a:hover { border-color: var(--accent); }
+  .related-reason { color: var(--accent-strong); font-size: 0.75rem; }
+  .related-grid h3 { margin: 10px 0; font-size: 1rem; line-height: 1.6; }
+  .related-grid p { margin: 0 0 18px; color: var(--muted); font-size: 0.85rem; line-height: 1.75; }
+  .related-meta { display: flex; gap: 8px; color: var(--faint); font-size: 0.75rem; }
+  .related-meta > span { margin-left: auto; }
+  @media (max-width: 600px) {
+    .article-brief { padding: 18px; }
+    .brief-grid, .related-grid { grid-template-columns: 1fr; gap: 16px; }
+  }
+
   .article-section { padding-block-start: 38px; }
-  .article-layout { min-width: 0; }
+  .article-layout { min-width: 0; max-width: 1180px; }
   .back-link { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 30px; color: var(--muted); font-size: 0.9rem; font-weight: 650; }
   .back-link:hover { color: var(--accent-strong); }
   .article-header { border-bottom: 1px solid var(--line-strong); margin-bottom: 38px; padding-bottom: 28px; }
@@ -202,11 +294,12 @@ const glossaryTerms = [
   .reading-time { padding-left: 22px; border-left: 1px solid var(--line-strong); }
   .related-project { color: var(--accent-strong); }
   .related-project:hover { text-decoration: underline; text-underline-offset: 4px; }
-  .article-content { display: grid; grid-template-columns: minmax(0, 1fr) 248px; gap: clamp(32px, 4vw, 64px); align-items: start; }
+  .article-content { display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: clamp(32px, 4vw, 64px); align-items: start; }
   .article-content.without-toc { grid-template-columns: minmax(0, 1fr); max-width: 1080px; }
-  .prose { max-width: none; font-size: 1.125rem; line-height: 1.95; }
+  .prose { max-width: none; font-size: 1.0625rem; line-height: 1.95; }
+  .prose :global(table code) { white-space: pre; }
   .prose :global(> :first-child) { margin-top: 0; }
-  .toc-rail { position: sticky; top: 108px; max-height: calc(100vh - 132px); overflow-y: auto; scrollbar-width: thin; }
+  .toc-rail { position: sticky; top: var(--header-offset); max-height: calc(100dvh - var(--header-offset) - 24px); overflow-y: auto; scrollbar-width: thin; }
   .toc { border-left: 1px solid var(--line-strong); padding-left: 22px; }
   .toc summary { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; color: var(--text); font-size: 0.86rem; font-weight: 750; list-style: none; cursor: pointer; }
   .toc summary::-webkit-details-marker { display: none; }
@@ -221,7 +314,7 @@ const glossaryTerms = [
   .prose :global(strong) {
     color: var(--text);
     font-weight: 820;
-    background: linear-gradient(180deg, transparent 56%, color-mix(in srgb, var(--accent-soft), transparent 18%) 0);
+
   }
 
   .prose :global(mark) {
@@ -232,7 +325,9 @@ const glossaryTerms = [
   }
 
   .prose :global(h2) {
-    scroll-margin-top: 96px;
+    scroll-margin-top: var(--header-offset);
+    line-height: 1.5;
+    font-size: clamp(1.25rem, 2vw, 1.55rem);
     border-top: 1px solid var(--line);
     padding-top: 28px;
   }
@@ -327,7 +422,7 @@ const glossaryTerms = [
     .toc summary { margin-bottom: 0; }
     .toc[open] summary { margin-bottom: 12px; }
     .back-top { display: none; }
-    .prose :global(h2), .prose :global(h3) { scroll-margin-top: 180px; }
+    .prose :global(h2), .prose :global(h3) { scroll-margin-top: var(--header-offset); }
   }
   @media (max-width: 520px) {
     .article-description { font-size: 1rem; margin-block: 16px 20px; }

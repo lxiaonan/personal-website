@@ -10,6 +10,10 @@ interface Props {
   hideHeader?: boolean;
   hideFooter?: boolean;
   activePath?: string;
+  type?: 'website' | 'article';
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  noindex?: boolean;
 }
 
 const {
@@ -17,10 +21,15 @@ const {
   description = 'Java 后端开发者个人网站，记录业务项目、踩坑复盘、AI 协作开发与工程实践。',
   hideHeader = false,
   hideFooter = false,
-  activePath
+  activePath,
+  type = 'website',
+  publishedTime,
+  modifiedTime,
+  noindex = false
 } = Astro.props;
 
 const pageTitle = title.includes('Java Backend') ? title : `${title} | Java Backend Developer`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
@@ -32,7 +41,13 @@ const pageTitle = title.includes('Java Backend') ? title : `${title} | Java Back
     <meta name="generator" content={Astro.generator} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:locale" content="zh_CN" />
+    <link rel="canonical" href={canonical.href} />
+    {publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
+    {modifiedTime && <meta property="article:modified_time" content={modifiedTime.toISOString()} />}
+    {noindex && <meta name="robots" content="noindex, follow" />}
     <link rel="icon" href={withBase('/favicon.svg')} />
     <link rel="alternate" type="application/rss+xml" title="RSS" href={withBase('/rss.xml')} />
     <script is:inline>

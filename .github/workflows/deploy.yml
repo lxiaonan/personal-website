@@ -40,6 +40,12 @@ jobs:
           DEPLOY_SITE_URL: https://lxiaonan.github.io
           DEPLOY_BASE_PATH: /personal-website
 
+      - name: Check generated links
+        run: npm run test:site
+        env:
+          DEPLOY_SITE_URL: https://lxiaonan.github.io
+          DEPLOY_BASE_PATH: /personal-website
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

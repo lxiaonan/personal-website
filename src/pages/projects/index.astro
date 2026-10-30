@@ -15,7 +15,7 @@ const projects = (await getCollection('projects'))
       <p class="eyebrow">Projects</p>
       <h1 class="section-title">代表项目。</h1>
       <p class="section-copy">
-        团队业务中的后端实践，与自己从需求推进到交付的 AI 产品。每个案例都写清负责范围、关键取舍和个人能力。
+        按个人提交整理团队后端与个人 AI 网站的工作，记录业务场景、处理步骤、具体修复和验证范围。
       </p>
       <div class="project-grid">
         {projects.map((project, index) => <ProjectCard project={project} index={index} />)}

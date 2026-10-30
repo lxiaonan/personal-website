@@ -12,7 +12,8 @@
     "deploy:update": "node scripts/deploy.mjs --update-only",
     "deploy:prepare": "node scripts/deploy.mjs --prepare-only",
     "deploy:https": "node scripts/deploy.mjs --https-only",
-    "test:deploy": "node --test scripts/deploy.test.mjs"
+    "test:deploy": "node --test scripts/deploy.test.mjs",
+    "test:site": "node scripts/check-site.mjs"
   },
   "dependencies": {
     "@astrojs/check": "latest",

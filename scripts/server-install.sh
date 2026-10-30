@@ -37,6 +37,12 @@ NGINX
     root $SITE/current;
     index index.html;
     autoindex off;
+    error_page 404 /404.html;
+    location = /404.html {
+        internal;
+        add_header Cache-Control "no-cache" always;
+        add_header X-Content-Type-Options nosniff always;
+    }
     add_header X-Content-Type-Options nosniff always;
     location ^~ /_astro/ {
         try_files \$uri =404;

@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ArticleList from '../components/ArticleList.astro';
+import FeaturedReads from '../components/FeaturedReads.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import { capabilities, profile, resourceGroups, stackGroups } from '../data/site';
 import { channels } from '../data/channels';
@@ -20,6 +21,12 @@ const practiceChannels = (['pitfall', 'ai-development'] as const).map((category)
 const projects = (await getCollection('projects'))
   .sort((a, b) => a.data.order - b.data.order)
   .map(projectCard);
+const skills = await getCollection('skills');
+const readingRoutes = [
+  { href: '/projects/', label: '了解项目经历', detail: `${projects.length} 个项目 · 负责范围与交付记录` },
+  { href: '/blog/', label: '查阅开发笔记', detail: `${posts.filter((post) => post.data.category === 'article').length} 篇文章 · 后端方案与工程实践` },
+  { href: '/ai-skills/', label: '找到合适的 AI Skill', detail: `${skills.length} 份指南 · 安装、调用与使用边界` }
+];
 ---
 
 <BaseLayout title="Java Backend Developer" description={profile.intro}>
@@ -27,11 +34,11 @@ const projects = (await getCollection('projects'))
     <div class="container hero-layout">
       <div class="hero-copy">
         <p class="eyebrow">Java Backend Developer</p>
-        <h1>把业务拆清楚，<br />把 AI 写的代码交付好。</h1>
+        <h1>Java 后端开发，<br />记录项目实现与问题修复。</h1>
         <p>{profile.intro}</p>
         <div class="button-row">
-          <a class="button primary" href={withBase('/projects/')}>查看项目</a>
-          <a class="button" href={withBase('/blog/')}>阅读文章</a>
+          <a class="button primary" href="#start-reading">从精选案例开始</a>
+          <a class="button" href={withBase('/projects/')}>查看项目</a>
           {profile.resume && <a class="button" href={withBase(profile.resume)}>简历 PDF</a>}
         </div>
       </div>
@@ -51,12 +58,34 @@ const projects = (await getCollection('projects'))
             <dt>Location</dt>
             <dd>{profile.location}</dd>
           </div>
-          <div>
+          {profile.email && <div>
             <dt>Contact</dt>
-            <dd>{profile.email}</dd>
-          </div>
+            <dd><a href={`mailto:${profile.email}`}>{profile.email}</a></dd>
+          </div>}
         </dl>
       </aside>
+    </div>
+  </section>
+
+  <nav class="container reading-routes" aria-label="按阅读目的浏览">
+    {readingRoutes.map((route, index) => (
+      <a href={withBase(route.href)}>
+        <span class="route-number">0{index + 1}</span>
+        <div><strong>{route.label} <span aria-hidden="true">↗</span></strong><small>{route.detail}</small></div>
+      </a>
+    ))}
+  </nav>
+
+  <section class="section start-reading" id="start-reading">
+    <div class="container">
+      <div class="reading-head">
+        <div>
+          <p class="eyebrow">从这里开始</p>
+          <h2>从具体问题与修复记录开始。</h2>
+        </div>
+        <a class="text-link" href={withBase('/pitfalls/')}>更多踩坑记录 ↗</a>
+      </div>
+      <FeaturedReads />
     </div>
   </section>
 
@@ -71,7 +100,7 @@ const projects = (await getCollection('projects'))
       <div class="section-intro">
         <p class="eyebrow">Projects</p>
         <h2 class="section-title">代表项目</h2>
-        <p class="section-copy">从自己的提交记录出发，讲清业务问题、负责的部分，以及代码背后的判断。</p>
+        <p class="section-copy">按个人提交梳理负责事项，记录处理步骤、关键修复与已知限制。</p>
         <a class="text-link" href={withBase('/projects/')}>全部项目</a>
       </div>
       <div class="project-grid">
@@ -83,8 +112,8 @@ const projects = (await getCollection('projects'))
   <section class="section rule" id="capabilities">
     <div class="container">
       <p class="eyebrow">What I bring</p>
-      <h2 class="section-title">代码之外，我负责什么。</h2>
-      <p class="section-copy">AI 承担大量实现工作。我持续练习的是定义问题、约束方案、追踪失败和验证结果。</p>
+      <h2 class="section-title">具体工作事项</h2>
+      <p class="section-copy">以下事项对应项目中的实现与修复，详情保留业务规则和提交记录。</p>
       <div class="capability-grid">
         {capabilities.map((item) => (
           <a class="capability-note" href={withBase(item.href)}>
@@ -113,7 +142,7 @@ const projects = (await getCollection('projects'))
   <section class="section rule" id="practice">
     <div class="container">
       <p class="eyebrow">Notes from the work</p>
-      <h2 class="section-title">做过，也踩过。</h2>
+      <h2 class="section-title">问题与修复记录</h2>
       <p class="section-copy">留下具体问题、修复边界和下一次可以复用的做法。</p>
       <div class="practice-grid">
         {practiceChannels.map((channel) => (
@@ -125,6 +154,20 @@ const projects = (await getCollection('projects'))
             <ArticleList articles={channel.posts} />
           </div>
         ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section rule" id="ai-skills">
+    <div class="container split-section">
+      <div class="section-intro">
+        <p class="eyebrow">AI Skills</p>
+        <h2 class="section-title">给 AI 一套做事的方法。</h2>
+      </div>
+      <div>
+        <p class="section-copy">整理 {skills.length} 个开源 AI Skills：从寻找能力、澄清需求、改进架构，到测试、浏览器验证与视频制作。每项都写清用途、安装方式、调用示例和适用边界。</p>
+        <div class="stack-row" aria-label="AI Skills 覆盖方向"><span>技能发现</span><span>需求与设计</span><span>工程质量</span><span>视频创作</span></div>
+        <a class="text-link" href={withBase('/ai-skills/')}>阅读 AI Skills 使用指南 ↗</a>
       </div>
     </div>
   </section>
@@ -157,13 +200,25 @@ const projects = (await getCollection('projects'))
 </BaseLayout>
 
 <style>
+  .reading-routes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; padding-block: 24px; border-block: 1px solid var(--line); }
+  .reading-routes > a { display: flex; align-items: baseline; gap: 14px; padding: 8px 4px; border-radius: 4px; }
+  .route-number { color: var(--accent); font: 0.75rem var(--mono); }
+  .reading-routes strong { font-size: 0.95rem; }
+  .reading-routes strong span { margin-left: 8px; color: var(--accent); }
+  .reading-routes small { display: block; margin-top: 7px; color: var(--muted); font-size: 0.8rem; }
+  .reading-routes a:hover strong { color: var(--accent-strong); }
+  @media (max-width: 700px) { .reading-routes { grid-template-columns: 1fr; gap: 8px; padding-block: 16px; } }
+  .start-reading { padding-block: 30px 12px; }
+  .reading-head { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin-bottom: 22px; }
+  .reading-head h2 { margin: 0; font-size: clamp(1.15rem, 2vw, 1.6rem); line-height: 1.5; }
+  .reading-head .text-link { font-size: 0.84rem; }
   .hero {
     padding-block: clamp(48px, 5vw, 84px) 30px;
   }
 
   .hero-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 360px;
+    grid-template-columns: minmax(0, 1fr) 310px;
     gap: 54px;
     align-items: center;
   }
@@ -186,6 +241,8 @@ const projects = (await getCollection('projects'))
 
   .profile-card {
     display: grid;
+    grid-template-columns: 62px minmax(0, 1fr);
+    align-items: center;
     gap: 16px;
     border: 1px solid var(--line);
     border-radius: 18px;
@@ -216,6 +273,7 @@ const projects = (await getCollection('projects'))
   }
 
   dl {
+    grid-column: 1 / -1;
     display: grid;
     gap: 0;
     margin: 0;
@@ -233,6 +291,7 @@ const projects = (await getCollection('projects'))
   }
 
   dd {
+    overflow-wrap: anywhere;
     margin: 2px 0 0;
     font-weight: 700;
   }
@@ -265,7 +324,7 @@ const projects = (await getCollection('projects'))
 
   .section-intro {
     position: sticky;
-    top: 108px;
+    top: var(--header-offset);
   }
 
   .text-link {
